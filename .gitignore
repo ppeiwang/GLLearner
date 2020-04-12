@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Binary Folder
+/x64
+.vs/
