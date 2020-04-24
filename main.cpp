@@ -21,7 +21,11 @@ int main()
 	const auto euler_x_matrix = glm::rotate(glm::mat4{ 1 }, angle.x, glm::vec3{1.f,0.f,0.0f});
 	const auto euler_matrix = euler_z_matrix*euler_y_matrix*euler_x_matrix;
 
+	const auto translation_matrix = glm::translate(glm::mat4{ 1 }, glm::vec3{ 1.0f, 10.f, 10.0f });
+	const auto TRS_matrix = translation_matrix * euler_matrix;
+
 	const auto q = glm::quat{ angle };
+	const auto q1 = glm::quat{ TRS_matrix };
 	const auto q_matrix = glm::mat4{ q };
 
 	for(int i = 0; i < 4; i++)
