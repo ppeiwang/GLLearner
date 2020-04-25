@@ -31,6 +31,15 @@ public:
 
 	std::string mPlacehold = "0";
 
+	StringMatrix() = default;
+
+	StringMatrix(const string s)
+	{
+		for (int i = 0; i < D; i++)
+			for (int j = 0; j < D; j++)
+				data[i][j] = s;
+	}
+
 	void Construct(const std::vector<string>& sequence)
 	{
 		assert(sequence.size() == D * D);
@@ -51,7 +60,7 @@ public:
 		return *(&(data[0][0]) + i);
 	}
 
-	StringMatrix operator* (const StringMatrix& other)
+	StringMatrix operator* (const StringMatrix& other) const
 	{
 		StringMatrix<D> MProduct;
 		for (size_t i = 0; i < D; i++)
@@ -120,8 +129,71 @@ public:
 		std::cout << ToString() << std::endl;
 	}
 
+	static StringMatrix RotateX(const std::string s)
+	{
+		StringMatrix m("0");
+#ifdef COLUNM_MAJOR
+		m[0 + 4*0] = "1";
+		m[1 + 4 * 1] = "c"+s;
+		m[2 + 4 * 1] = "s"+s;
+		m[1 + 4 * 2] = "-s"+s;
+		m[2 + 4 * 2] = "c"+s;
+		m[3 + 4 * 3] = "1";
+#else
+		m[0 + 4*0] = "1";
+		m[1 + 4 * 1] = "c"+s;
+		m[1 + 4 * 2] = "s"+s;
+		m[2 + 4 * 1] = "-s"+s;
+		m[2 + 4 * 2] = "c"+s;
+		m[3 + 4 * 3] = "1";
+#endif
+		return m;
+	}
+
+	static StringMatrix RotateY(const std::string s)
+	{
+		StringMatrix m("0");
+#ifdef COLUNM_MAJOR
+		m[0 + 4 * 0] = "c"+s;
+		m[2 + 4 * 0] = "-s" + s;
+		m[1 + 4 * 1] = "1";
+		m[0 + 4 * 2] = "s" + s;
+		m[2 + 4 * 2] = "c" + s;
+		m[3 + 4 * 3] = "1";
+#else
+		m[0 + 4 * 0] = "c"+s;
+		m[0 + 4 * 2] = "-s" + s;
+		m[1 + 4 * 1] = "1";
+		m[2 + 4 * 0] = "s" + s;
+		m[2 + 4 * 2] = "c" + s;
+		m[3 + 4 * 3] = "1";
+#endif
+		return m;
+	}
+
+	static StringMatrix RotateZ(const std::string s)
+	{
+		StringMatrix m("0");
+#ifdef COLUNM_MAJOR
+		m[0 + 4 * 0] = "c" + s;
+		m[1 + 4 * 0] = "s" + s;
+		m[0 + 4 * 1] = "-s" + s;
+		m[1 + 4 * 1] = "c" + s;
+		m[2 + 4 * 2] = "1";
+		m[3 + 4 * 3] = "1";
+#else
+		m[0 + 4 * 0] = "c" + s;
+		m[0 + 4 * 1] = "s" + s;
+		m[1 + 4 * 0] = "-s" + s;
+		m[1 + 4 * 1] = "c" + s;
+		m[2 + 4 * 2] = "1";
+		m[3 + 4 * 3] = "1";
+#endif
+		return m;
+	}
+
 private:
-	size_t ConvertIndex(size_t row, size_t colunm)
+	size_t ConvertIndex(size_t row, size_t colunm) const
 	{
 #ifdef COLUNM_MAJOR
 		return colunm * D + row;

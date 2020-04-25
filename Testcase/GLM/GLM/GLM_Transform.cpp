@@ -55,15 +55,15 @@ glm::mat4x4 glm_base::MatrixRotateXYZ(float _ax, float _ay, float _az)
 
 	glm::mat4x4 _result{ 1 };
 	_result[0][0] = cz * cy;
-	_result[0][1] = cz * sy * sx - sz * cx;
-	_result[0][2] = sz * sx + cz * sy * cx;
+	_result[0][1] = cz * sy * sx + sz * cx;
+	_result[0][2] = sz * sx - cz * sy * cx;
 
-	_result[1][0] = sz * cy;
-	_result[1][1] = cz * cx + sz * sy * sx;
-	_result[1][2] = sz * sy * cx - cz * sx;
+	_result[1][0] = -sz * cy;
+	_result[1][1] = cz * cx - sz * sy * sx;
+	_result[1][2] = sz * sy * cx + cz * sx;
 
-	_result[2][0] = -sy;
-	_result[2][1] = cy * sx;
+	_result[2][0] = sy;
+	_result[2][1] = -cy * sx;
 	_result[2][2] = cy * cx;
 
 	return _result;

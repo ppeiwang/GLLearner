@@ -84,13 +84,7 @@ public:
 
 int main()
 {
-#if 0
-	Test_Matrix_Rotation_Decompose();
-	Test_Matrix_Rotate_Axis();
-	Test_Quaternion_FromMatrix();
-	Test_Quaternion_ToMatrix();
-	Test_Quaternion_ToEuler();
-
+#if 1	
 	Test_Matrix_Mul();
 	Test_Matrix_Identity();
 	Test_Matrix_Lookat();
@@ -101,6 +95,16 @@ int main()
 	Test_Matrix_InverseTranspose();
 	Test_Matrix_Make();
 	Test_Matrix_Decompose();
+
+	Test_Matrix_GLM_EulerMatrix();
+	Test_Matrix_Rotation_Decompose();
+	Test_Matrix_Rotate_Axis();
+	Test_Quaternion_FromMatrix();
+	Test_Quaternion_ToMatrix();
+
+	Test_Quaternion2Euler();
+	Test_Euler2Quaternion();
+
 
 	std::cout << "Everything is ok!" << std::endl;
 
@@ -130,49 +134,42 @@ int main()
 
 
 #else
-	StringMatrix<4> SMat_x;
-	SMat_x.Construct(std::vector<string>({"1","0","0","0", "0","c1","-s1","0", "0","s1","c1","0", "0","0","0","1"}));
+	StringMatrix<4> SMat_x = StringMatrix<4>::RotateX("x");
 	SMat_x.Print();
 
-	StringMatrix<4> SMat_y;
-	SMat_y.Construct(std::vector<string>({"c2","0","s2","0", "0","1","0","0", "-s2","0","c2","0", "0","0","0","1"}));
+	StringMatrix<4> SMat_y = StringMatrix<4>::RotateY("y");
 	SMat_y.Print();
 
-	StringMatrix<4> SMat_z;
-	SMat_z.Construct(std::vector<string>({"c3","-s3","0","0", "s3","c3","0","0", "0","0","1","0", "0","0","0","1"}));
+	StringMatrix<4> SMat_z = StringMatrix<4>::RotateZ("z");
 	SMat_z.Print();
 
-	std::cout << "colunm-major matrix rotation(glm) x*y*z: " << std::endl;
+	std::cout << "X*Y" << std::endl;
+	auto m_xy = SMat_x * SMat_y;
+	m_xy.Print();
+
+	std::cout << "X*Y*Z" << std::endl;
 
 	auto m_xyz = SMat_x * SMat_y * SMat_z;
 	m_xyz.Print();
 
-
-	std::cout << "colunm-major matrix rotation(glm) z*y*x: " << std::endl;
-
-	auto m0 = SMat_z * SMat_y * SMat_x;
-
-	m0.Print();
+	std::cout << "Z*Y*X" << std::endl;
+	auto m_zyx = SMat_z * SMat_y * SMat_x;
+	m_zyx.Print();
 		
-	auto SMat_x_t = SMat_x.Transpose();
-	SMat_x_t.Print();
+	const auto SMat_x_t = SMat_x.Transpose();
+	const auto SMat_y_t = SMat_y.Transpose();
+	const auto SMat_z_t = SMat_z.Transpose();
 
-	auto SMat_y_t = SMat_y.Transpose();
-	SMat_y_t.Print();
+	std::cout << "Transpose(X*Y*Z)" << std::endl;
+	auto m_t_zyx = SMat_z_t * SMat_y_t * SMat_x_t;
+	m_t_zyx.Print();
 
-	auto SMat_z_t = SMat_z.Transpose();
-	SMat_z_t.Print();
+	std::cout << "XYX is" << std::endl;
 
-	std::cout << "row-major matrix rotation (x*y*z)T: " << std::endl;
-	auto m1 = SMat_z_t * SMat_y_t * SMat_x_t;
-	//auto m1 = SMat_x_t * SMat_y_t * SMat_z_t;
-	m1.Print();
+	const auto SMat_x_3 = StringMatrix<4>::RotateX("3");
+	auto m_xyx = SMat_x * SMat_y * SMat_x_3;
 
-	std::cout << "the transpose of result matrix" << std::endl;
-	auto m3 = SMat_x_t * SMat_y_t * SMat_z_t;
-	auto m2 = m3.Transpose();
-	m2.Print();
-
+	m_xyx.Print();
 
 
 #endif

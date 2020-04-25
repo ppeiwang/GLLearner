@@ -102,8 +102,12 @@ void Test_Matrix_Decompose();
 
 void Test_Matrix_Rotation_Decompose();
 
-void Test_Quaternion_ToEuler();
-
 void Test_Quaternion_FromMatrix();
 
 void Test_Quaternion_ToMatrix();
+
+void Test_Quaternion2Euler();
+
+void Test_Euler2Quaternion();
+
+void Test_Matrix_GLM_EulerMatrix();

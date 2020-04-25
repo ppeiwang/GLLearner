@@ -32,5 +32,5 @@
 *.app
 
 # Binary Folder
-/x64
+*x64/
 .vs/
