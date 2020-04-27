@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include "glm/geometric.hpp"
 #include "glm/gtc/constants.hpp"
+#include "glm/gtc/quaternion.hpp"
 #include <iostream>
 #include "TextTable.h"
 #include <iomanip>
@@ -135,4 +136,6 @@ namespace glm_base
 	glm::mat4x4 MatrixRotateZ(float _az);
 
 	void MatrixDecompose(const glm::mat4x4& _mat, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale);
+
+	void MatrixDecompose(const glm::mat4x4& _mat, glm::vec3& translation, glm::quat& q, glm::vec3& scale);
 }

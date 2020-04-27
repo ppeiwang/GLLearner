@@ -6,6 +6,9 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/epsilon.hpp"
 #include "glm/gtx/euler_angles.hpp"
+#include <thread>
+#include <chrono>
+#include <iomanip>
 
 
 const size_t G_INTENSITY = 1000;
@@ -335,17 +338,21 @@ void Test_Matrix_Decompose()
 		glm::vec3 transf_translation;
 		glm::vec3 transf_scale;
 		glm::vec3 transf_rotation;
+		glm::quat transf_q;
 
 		glm_base::MatrixDecompose(mat_transform, transf_translation, transf_rotation, transf_scale);
+		glm_base::MatrixDecompose(mat_transform, transf_translation, transf_q, transf_scale);
 
 		const auto mat_rotation_from_decompose{ glm_base::MatrixRotateZYX(transf_rotation.x, transf_rotation.y, transf_rotation.z) };
+		const auto mat_q_from_decompose = glm_base::Transform{ glm::mat4{transf_q} };
 
 		const bool b_t = Compare<std::vector<float>, glm::vec3, 3>(vec_translation, transf_translation);
 		//const bool b_r = CompareRadian(vec_rotation, transf_rotation);
 		const bool b_r = Compare(glm_base::Transform{ mat_rotation }, glm_base::Transform{ mat_rotation_from_decompose }, 0.01f);
+		const bool b_q = Compare(glm_base::Transform{ mat_rotation }, glm_base::Transform{ mat_q_from_decompose }, 0.01f);
 		const bool b_s = Compare<std::vector<float>, glm::vec3, 3>(vec_scale, transf_scale, 0.001f);
 
-		if (!(b_t && b_r && b_s))
+		if (!(b_t && b_r && b_s && b_q))
 		{
 			assert(false);
 			const auto r0 = glm_base::Transform{ mat_rotation };
@@ -447,8 +454,10 @@ void Test_Quaternion_FromMatrix()
 		//const auto q_equal = glm::epsilonEqual(q, q1, 0.0001f);
 		//assert(q_equal.x && q_equal.y && q_equal.z && q_equal.w);
 
-		const auto q_matrix = glm::mat4{ q };
-		const auto q_matrix1 = glm::mat4{ q1 };
+		//const auto q_matrix = glm::mat4{ q };
+		//const auto q_matrix1 = glm::mat4{ q1 };
+		const auto q_matrix = glm::mat4_cast(q);
+		const auto q_matrix1 = glm::mat4_cast(q1);
 
 		for (int i = 0; i < 4; i++)
 			for (int j = 0; j < 4; j++)
@@ -486,18 +495,19 @@ namespace {
 
 void Test_Quaternion_ToMatrix()
 {
-	for (int i = 0; i < G_INTENSITY; i++)
-	{
-		const auto vec_quat = SerialGenerator(4);
-		const auto q = glm::quat{ vec_quat[0], vec_quat[1], vec_quat[2], vec_quat[3] };
-		const auto m0 = CustomRotateMatrix(q);
-		const auto m1 = glm::mat4{ q };
-		for (int i = 0; i < 4; i++)
-			for (int j = 0; j < 4; j++)
-			{
-				assert(glm::epsilonEqual(m0[i][j], m1[i][j], 0.001f));
-			}
-	}
+for (int i = 0; i < G_INTENSITY; i++)
+{
+	const auto vec_quat = SerialGenerator(4);
+	const auto q = glm::quat{ vec_quat[0], vec_quat[1], vec_quat[2], vec_quat[3] };
+	const auto m0 = CustomRotateMatrix(q);
+	//const auto m1 = glm::mat4{ q };
+	const auto m1 = glm::mat4_cast(q);
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+		{
+			assert(glm::epsilonEqual(m0[i][j], m1[i][j], 0.001f));
+		}
+}
 }
 
 void Test_Quaternion2Euler()
@@ -507,37 +517,103 @@ void Test_Quaternion2Euler()
 		const auto vec_quat = SerialGenerator(4);
 		const auto q = glm::normalize(glm::quat{ vec_quat[0], vec_quat[1], vec_quat[2], vec_quat[3] });
 
-		const auto matrix_q = glm::mat4{ q };
+		// const auto matrix_q = glm::mat4{ q };
+		const auto matrix_q = glm::mat4_cast(q);
 
+		// Method 1
 		float x, y, z;
 		glm::extractEulerAngleXYZ(matrix_q, x, y, z);
 		const auto matrix_euler_xyz = glm::eulerAngleXYZ(x, y, z);
 		glm::extractEulerAngleZYX(matrix_q, z, y, x);
 		const auto matrix_euler_zyx = glm::eulerAngleZYX(z, y, x);
 
+		// Method 2. X->Y->Z order (Z*Y*X)
+		const auto angles = glm::eulerAngles(q);
+		x = angles.x;
+		y = angles.y;
+		z = angles.z;
+		const auto matrix_glm_xyz = glm::eulerAngleZYX(z, y, x);
+
 		bool flag_xyz = true;
 		bool flag_zyx = true;
+		bool flag_glm = true;
 		for (int i = 0; i < 4; i++)
 			for (int j = 0; j < 4; j++)
 			{
 				flag_xyz = flag_xyz && (glm::epsilonEqual(matrix_q[i][j], matrix_euler_xyz[i][j], 0.0001f));
 				flag_zyx = flag_zyx && (glm::epsilonEqual(matrix_q[i][j], matrix_euler_zyx[i][j], 0.0001f));
+				flag_glm = flag_glm && (glm::epsilonEqual(matrix_q[i][j], matrix_glm_xyz[i][j], 0.0001f));
 			}
 
-		assert(flag_xyz && flag_zyx);
+		assert(flag_xyz && flag_zyx && flag_glm);
 	}
 
 }
 
 void Test_Euler2Quaternion()
 {
-	for (int i = 0; i < G_INTENSITY; i++)
+	auto testor = [](float x, float y, float z)
 	{
-		const auto vec_eulerAngles = SerialGenerator(3);
-		const auto eulerAngles = glm::vec3{ vec_eulerAngles[0], vec_eulerAngles[1], vec_eulerAngles[2] };
+		const auto angles = glm::vec3{ x, y, z };
+
+		const auto q = glm::quat{ angles };
+		const auto m0 = glm::mat4_cast(q);
+		const auto m1 = glm::eulerAngleZYX(angles.z, angles.y, angles.x);
+		//const auto m2 = glm::eulerAngleXYZ(angles.x, angles.y, angles.z);
+
+		bool bFlag_zyx = true;
+		bool bFlag_xyz = true;
+
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+			{
+				bFlag_zyx = bFlag_zyx && glm::epsilonEqual(m0[i][j], m1[i][j], 0.0001f);
+				//bFlag_xyz = bFlag_xyz && glm::epsilonEqual(m0[i][j], m2[i][j], 0.0001f);
+			}
+
+		bFlag_zyx;
+		if (bFlag_zyx)
+		{
+			int i = 1;
+		}
+		else
+		{
+			int i = 1;
+			std::cout << "X: " << x << ", Y: " << y << ", Z: " << z << std::endl;
+		}
+	};
+
+	for (int i = 0; i < 3141; i++)
+		//for(int j = 0; j < 3141; j++)
+			//for(int k = 0; k < 3141; k++)
+	{
+		float x = i / 1000.f;
+		//float y = j / 1000.f;
+		//float z = k / 1000.f;
+		float y = 0.0f;
+		float z = 0.0f;
+
+		if (x == 0.1f)
+		{
+			int d = 0;
+		}
+
+		testor(x, y, z);
+	}
+
+	//assert(bFlag_xyz);
+	//assert(bFlag_zyx);
+
+
+	const auto S = 1000000;
+	for (int i = 0; i < S; i++)
+	{
+		const auto vec_eulerAngles = RangeGenerator(0, (int)(glm::pi<float>()*S), 3);
+		const auto eulerAngles = glm::vec3{ vec_eulerAngles[0], vec_eulerAngles[1], vec_eulerAngles[2] } / (float)S;
 		const auto q = glm::quat{ eulerAngles };
 		
-		const auto matrix_q = glm::mat4{ q };
+		//const auto matrix_q = glm::mat4{ q };
+		const auto matrix_q = glm::mat4_cast( q );
 		//const auto matrix_euler = glm::eulerAngleXYZ(eulerAngles.x, eulerAngles.y, eulerAngles.z);
 		const auto matrix_euler = glm::eulerAngleZYX(eulerAngles.z, eulerAngles.y, eulerAngles.x);
 
@@ -554,37 +630,65 @@ void Test_Euler2Quaternion()
 
 void Test_Matrix_GLM_EulerMatrix()
 {
+	auto ZYX = [](float x, float y, float z) {
+		const auto euler_x = glm::eulerAngleX(x);
+		const auto euler_y = glm::eulerAngleY(y);
+		const auto euler_z = glm::eulerAngleZ(z);
+		return euler_z * euler_y * euler_x;
+	};
+
+	auto XYZ = [](float x, float y, float z) {
+		const auto euler_x = glm::eulerAngleX(x);
+		const auto euler_y = glm::eulerAngleY(y);
+		const auto euler_z = glm::eulerAngleZ(z);
+		return euler_x * euler_y * euler_z;
+	};
+
+	const auto m0 = ZYX(0.f, -1.570796f, 4.648669f);
+	const auto m1 = ZYX(2.555484f, -1.51851f, 2.137917f);
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			assert(glm::epsilonEqual(m0[i][j], m1[i][j], 0.001f));
+
+
 	for (int i = 0; i < G_INTENSITY; i++)
 	{
-		const auto vec_eulerAngles = SerialGenerator(3);
+		const auto vec_eulerAngles = SerialGenerator(3);	
 
-		auto ZYX = [](float x, float y, float z) {
-			const auto euler_x = glm::eulerAngleX(x);
-			const auto euler_y = glm::eulerAngleY(y);
-			const auto euler_z = glm::eulerAngleZ(z);
-			return euler_z * euler_y * euler_x;
-		};
+		const auto m_xyz_raw = XYZ(vec_eulerAngles[0], vec_eulerAngles[1], vec_eulerAngles[2]);
+		const auto m_xyz_glmEuler = glm::eulerAngleXYZ(vec_eulerAngles[0], vec_eulerAngles[1], vec_eulerAngles[2]);
+		const auto m_xyz_artificial = glm_base::MatrixRotateXYZ(vec_eulerAngles[0], vec_eulerAngles[1], vec_eulerAngles[2]);
 
-		auto XYZ = [](float x, float y, float z) {
-			const auto euler_x = glm::eulerAngleX(x);
-			const auto euler_y = glm::eulerAngleY(y);
-			const auto euler_z = glm::eulerAngleZ(z);
-			return euler_x * euler_y * euler_z;
-		};
-
-		const auto m0 = XYZ(vec_eulerAngles[0], vec_eulerAngles[1], vec_eulerAngles[2]);
-		const auto m1 = glm::eulerAngleXYZ(vec_eulerAngles[0], vec_eulerAngles[1], vec_eulerAngles[2]);
-
-		const auto m2 = ZYX(vec_eulerAngles[0], vec_eulerAngles[1], vec_eulerAngles[2]);
-		const auto m3 = glm::eulerAngleZYX(vec_eulerAngles[2], vec_eulerAngles[1], vec_eulerAngles[0]);
+		const auto m_zyx_raw = ZYX(vec_eulerAngles[0], vec_eulerAngles[1], vec_eulerAngles[2]);
+		const auto m_zyx_glmEuler = glm::eulerAngleZYX(vec_eulerAngles[2], vec_eulerAngles[1], vec_eulerAngles[0]);
+		const auto m_zyx_artificial = glm_base::MatrixRotateZYX(vec_eulerAngles[0], vec_eulerAngles[1], vec_eulerAngles[2]);
 
 		for (int i = 0; i < 4; i++)
 			for (int j = 0; j < 4; j++)
 			{
-				assert(glm::epsilonEqual(m0[i][j], m1[i][j], 0.001f));
-				assert(glm::epsilonEqual(m2[i][j], m3[i][j], 0.001f));
+				assert(glm::epsilonEqual(m_xyz_raw[i][j], m_xyz_glmEuler[i][j], 0.001f));
+				assert(glm::epsilonEqual(m_xyz_raw[i][j], m_xyz_artificial[i][j], 0.001f));
+				assert(glm::epsilonEqual(m_xyz_artificial[i][j], m_xyz_glmEuler[i][j], 0.001f));
+
+				assert(glm::epsilonEqual(m_zyx_raw[i][j], m_zyx_glmEuler[i][j], 0.001f));
+				assert(glm::epsilonEqual(m_zyx_raw[i][j], m_zyx_artificial[i][j], 0.001f));
+				assert(glm::epsilonEqual(m_zyx_artificial[i][j], m_zyx_glmEuler[i][j], 0.001f));
 			}
 
 	}
+}
+
+void Test_GimbalLock()
+{
+	const auto vec_eulerAngles = SerialGenerator(2);
+	const auto eulerAngle = glm::vec3{vec_eulerAngles[0], glm::half_pi<float>(), vec_eulerAngles[1]};
+	const auto matrix_gimbalLock = glm::eulerAngleZYX(eulerAngle.z, eulerAngle.y, eulerAngle.x);
+	const auto matrix_quaternion = glm::mat4{ glm::quat{eulerAngle} };
+
+	glm_base::Transform m0{ matrix_gimbalLock };
+	glm_base::Transform m1{ matrix_quaternion };
+
+	//m0.Print();
+	//m1.Print();
 }
 

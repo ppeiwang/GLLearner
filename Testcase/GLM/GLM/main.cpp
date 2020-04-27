@@ -105,30 +105,10 @@ int main()
 	Test_Quaternion2Euler();
 	Test_Euler2Quaternion();
 
+	Test_GimbalLock();
+
 
 	std::cout << "Everything is ok!" << std::endl;
-
-	//ASSIM::aiMatrix4x4t aiM{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-	//
-	//glm_base::Transform t;
-	//std::copy(aiM[0], aiM[3] + 4, &t[0]);
-
-	//t.Print();
-
-	const glm::vec4 v { 1.0f, 0.f, 0.f, 0.0f};
-
-	const auto half_pi = glm::pi<float>() / 2.0f;
-
-	const auto mx = glm::rotate(glm::mat4{ 1 }, 0.0f, glm::vec3{ 1.0f,  0.0f, 0.0f });
-	const auto my = glm::rotate(glm::mat4{ 1 }, glm::pi<float>() / 2.0f, glm::vec3{ 0.0f,  1.0f, 0.0f });
-	const auto mz = glm::rotate(glm::mat4{ 1 }, glm::pi<float>() / 2.0f, glm::vec3{ 0.0f,  0.0f, 1.0f });
-
-	const auto mzyx = glm_base::MatrixRotateZYX(0.f, half_pi, half_pi);
-
-	const auto m = mz * my * mx;
-
-	const auto result = m*v;
-	const auto resutl1 = mzyx * v;
 
 	int a = 0;
 

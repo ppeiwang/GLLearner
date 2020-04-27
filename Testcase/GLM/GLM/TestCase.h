@@ -111,3 +111,5 @@ void Test_Quaternion2Euler();
 void Test_Euler2Quaternion();
 
 void Test_Matrix_GLM_EulerMatrix();
+
+void Test_GimbalLock();
