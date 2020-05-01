@@ -5,6 +5,7 @@
 #include "TestCase.h"
 #include "StringMatrix.h"
 #include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/euler_angles.hpp"
 
 namespace ASSIM
 {
@@ -84,6 +85,198 @@ public:
 
 int main()
 {
+	float x = 368536.493263f - 368394.0f;
+	float y = 3459015.067785f - 3459110.0f;
+	float z = 17.0110265f;
+	float half_pi = -1.570796f;
+	glm::vec4 p{x, y, z, 0.0f};
+	glm::vec3 r_adjust = { half_pi, 0.0f, 0.0f };
+	auto m_hwspace_2_gwcpS = glm::eulerAngleZYX(r_adjust.z, r_adjust.y, r_adjust.x);
+	p = m_hwspace_2_gwcpS*p;
+	int i = 0;
+	// Scene 1
+	{
+		float m0 = 0.9986;
+		float m1 = -0.0174f;
+		float m2 = -0.0482f;
+		float m3 = 0.0f;
+		float m4 = 0.0489f;
+		float m5 = 0.4636f;
+		float m6 = 0.9977f;
+		float m7 = 0.0f;
+		float m8 = -0.0151f;
+		float m9 = -0.9987f;
+		float m10 = 0.0471f;
+		float m11 = 0.0f;
+		float m12 = 0.0f;
+		float m13 = 0.0f;
+		float m14 = 0.0f;
+		float m15 = 1.0f;
+
+		glm::mat4 matrix{ 1.0f };
+
+		auto Set = [&](float f, size_t index) {
+			(&matrix[0][0])[index] = f;
+		};
+
+		Set(m0, 0);
+		Set(m1, 1);
+		Set(m2, 2);
+		Set(m3, 3);
+		Set(m4, 4);
+		Set(m5, 5);
+		Set(m6, 6);
+		Set(m7, 7);
+		Set(m8, 8);
+		Set(m9, 9);
+		Set(m10, 10);
+		Set(m11, 11);
+		Set(m12, 12);
+		Set(m13, 13);
+		Set(m14, 14);
+		Set(m15, 15);
+
+		float x, y, z;
+		glm::extractEulerAngleZYX(matrix, z, y, x);
+		std::cout << "scene1: " << "x: " << x << ", y: " << y << ", z: " << z << std::endl;
+
+		const auto matrix_transpose = glm::transpose(matrix);
+
+		glm::extractEulerAngleZYX(matrix_transpose, z, y, x);
+		std::cout << "scene1 after transpose : " << "x: " << x << ", y: " << y << ", z: " << z << std::endl;
+
+		const auto north = glm::vec4{ 0.f, 1.0f, 0.f, 1.0f};
+		auto north_inverse_transform = glm::inverse(matrix) * north;
+		std::cout << "scene1: north after inverse transform. x: " << north_inverse_transform.x << ", y: " << north_inverse_transform.y << ", z: " << north_inverse_transform.z << std::endl;
+		north_inverse_transform = glm::inverse(matrix_transpose) * north;
+		std::cout << "scene1: north after transpose inverse transform. x: " << north_inverse_transform.x << ", y: " << north_inverse_transform.y <<", z: " << north_inverse_transform.z << std::endl;
+
+		std::cout << std::endl;
+	}
+
+
+	// Scene 2
+	{
+		float m0 = 0.00043f;
+		float m1 = 0.994615f;
+		float m2 = -0.103635f;
+		float m3 = 0.0f;
+		float m4 = -0.16867f;
+		float m5 = -0.102077f;
+		float m6 = -0.98037f;
+		float m7 = 0.0f;
+		float m8 = -0.98567f;
+		float m9 = 0.01790f;
+		float m10 = 0.16772f;
+		float m11 = 0.0f;
+		float m12 = 0.0f;
+		float m13 = 0.0f;
+		float m14 = 0.0f;
+		float m15 = 1.0f;
+
+		glm::mat4 matrix{ 1.0f };
+
+		auto Set = [&](float f, size_t index) {
+			(&matrix[0][0])[index] = f;
+		};
+
+		Set(m0, 0);
+		Set(m1, 1);
+		Set(m2, 2);
+		Set(m3, 3);
+		Set(m4, 4);
+		Set(m5, 5);
+		Set(m6, 6);
+		Set(m7, 7);
+		Set(m8, 8);
+		Set(m9, 9);
+		Set(m10, 10);
+		Set(m11, 11);
+		Set(m12, 12);
+		Set(m13, 13);
+		Set(m14, 14);
+		Set(m15, 15);
+
+		float x, y, z;
+		glm::extractEulerAngleZYX(matrix, z, y, x);
+		std::cout << "scene2: "  << "x: " << x << ", y: " << y << ", z: " << z << std::endl;
+
+		const auto matrix_transpose = glm::transpose(matrix);
+
+		glm::extractEulerAngleZYX(matrix_transpose, z, y, x);
+		std::cout << "scene2 after transpose : " << "x: " << x << ", y: " << y << ", z: " << z << std::endl;
+
+		const auto south = glm::vec4{ 0.f, -1.0f, 0.f, 1.0f };
+		auto south_inverse_transform = glm::inverse(matrix) * south;
+		std::cout << "scene2: south after inverse transform. x: " << south_inverse_transform.x << ", y: " << south_inverse_transform.y << ", z: " << south_inverse_transform.z << std::endl;
+		south_inverse_transform = glm::inverse(matrix_transpose) * south;
+		std::cout << "scene2: south after transpose inverse transform. x: " << south_inverse_transform.x << ", y: " << south_inverse_transform.y << ", z: " << south_inverse_transform.z << std::endl;
+
+		std::cout << std::endl;
+	}
+
+	// Scene 3
+	{
+		float m0 = -0.10501f;
+		float m1 = -0.378678f;
+		float m2 = -0.91955f;
+		float m3 = 0.0f;
+		float m4 = -0.03149f;
+		float m5 = -0.922933f;
+		float m6 = 0.38366f;
+		float m7 = 0.0f;
+		float m8 = -0.9939f;
+		float m9 = 0.06925f;
+		float m10 = 0.08499f;
+		float m11 = 0.0f;
+		float m12 = 0.0f;
+		float m13 = 0.0f;
+		float m14 = 0.0f;
+		float m15 = 1.0f;
+
+		glm::mat4 matrix{ 1.0f };
+
+		auto Set = [&](float f, size_t index) {
+			(&matrix[0][0])[index] = f;
+		};
+
+		Set(m0, 0);
+		Set(m1, 1);
+		Set(m2, 2);
+		Set(m3, 3);
+		Set(m4, 4);
+		Set(m5, 5);
+		Set(m6, 6);
+		Set(m7, 7);
+		Set(m8, 8);
+		Set(m9, 9);
+		Set(m10, 10);
+		Set(m11, 11);
+		Set(m12, 12);
+		Set(m13, 13);
+		Set(m14, 14);
+		Set(m15, 15);
+
+		float x, y, z;
+		glm::extractEulerAngleZYX(matrix, z, y, x);
+		std::cout << "scene3 : " << "x: " << x << ", y: " << y << ", z: " << z << std::endl;
+
+		const auto matrix_transpose = glm::transpose(matrix);
+
+		glm::extractEulerAngleZYX(matrix_transpose, z, y, x);
+		std::cout << "scene3 after transpose : " << "x: " << x << ", y: " << y << ", z: " << z << std::endl;
+
+		const auto west = glm::vec4{ -1.f, 0.0f, 0.f, 1.0f };
+		auto west_inverse_transform = glm::inverse(matrix) * west;
+		west_inverse_transform = glm::normalize(west_inverse_transform);
+		std::cout << "scene3: west after inverse transform. x: " << west_inverse_transform.x << ", y: " << west_inverse_transform.y << ", z: " << west_inverse_transform.z << std::endl;
+		west_inverse_transform = glm::inverse(matrix_transpose) * west;
+		west_inverse_transform = glm::normalize(west_inverse_transform);
+		std::cout << "scene3: west after transpose inverse transform. x: " << west_inverse_transform.x << ", y: " << west_inverse_transform.y << ", z: " << west_inverse_transform.z << std::endl;
+	}
+
+	return 0;
+
 #if 1	
 	Test_Matrix_Mul();
 	Test_Matrix_Identity();

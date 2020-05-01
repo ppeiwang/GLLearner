@@ -40,6 +40,19 @@ bool Compare(const T0& t0, const T1& t1, const float bias = glm::epsilon<float>(
 	return bFlag;
 }
 
+template<size_t L = 16>
+bool Compare(const glm::mat4& t0, const glm::mat4& t1, const float bias)
+{
+	bool bFlag = true;
+	for(size_t i = 0; i < 4; i++)
+	for (size_t j = 0; j < 4; j++)
+	{
+		bFlag &= std::abs(t0[j][i] - t1[j][i]) < bias;
+	}
+
+	return bFlag;
+}
+
 template<typename T0, typename T1, size_t L = 3>
 bool CompareRadian(const T0& t0, const T1& t1)
 {
