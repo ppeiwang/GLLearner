@@ -515,10 +515,17 @@ void Test_Quaternion2Euler()
 	for (int i = 0; i < G_INTENSITY; i++)
 	{
 		const auto vec_quat = SerialGenerator(4);
-		const auto q = glm::normalize(glm::quat{ vec_quat[0], vec_quat[1], vec_quat[2], vec_quat[3] });
+		const auto q_raw = glm::quat{ vec_quat[0], vec_quat[1], vec_quat[2], vec_quat[3] };
+		const auto q = glm::normalize(q_raw);
 
 		// const auto matrix_q = glm::mat4{ q };
+		const auto matrix_q_raw = glm::mat4{ q_raw };
 		const auto matrix_q = glm::mat4_cast(q);
+
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+				glm::epsilonEqual(matrix_q_raw[i][j], matrix_q[i][j], 0.00001f);
+	
 
 		// Method 1
 		float x, y, z;
@@ -643,13 +650,6 @@ void Test_Matrix_GLM_EulerMatrix()
 		const auto euler_z = glm::eulerAngleZ(z);
 		return euler_x * euler_y * euler_z;
 	};
-
-	const auto m0 = ZYX(0.f, -1.570796f, 4.648669f);
-	const auto m1 = ZYX(2.555484f, -1.51851f, 2.137917f);
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
-			assert(glm::epsilonEqual(m0[i][j], m1[i][j], 0.001f));
-
 
 	for (int i = 0; i < G_INTENSITY; i++)
 	{
