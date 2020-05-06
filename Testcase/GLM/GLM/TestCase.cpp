@@ -491,23 +491,51 @@ namespace {
 		m[3][0] = 0.0f; m[3][1] = 0.0f; m[3][2] = 0.0f; m[3][3] = 1.0f;
 		return m;
 	}
+
+	glm::vec3 QuaternionToEuler(const glm::quat& q) // Z-Y-X Euler angles
+	{
+		glm::vec3 euler{};
+		const double Epsilon = 0.0009765625f;
+		const double Threshold = 0.5f - Epsilon;
+
+		double TEST = (double)q.w * (double)q.y - (double)q.x * (double)q.z;
+
+		if (TEST < -Threshold || TEST > Threshold) // ÆæÒì×ËÌ¬,¸©Ñö½ÇÎª¡À90¡ã
+		{
+			int sign = glm::sign(TEST);
+
+			euler.z = -2 * sign * (float)atan2(q.x, q.w); // yaw
+
+			euler.y = sign * (3.1415926f / 2.0f); // pitch
+
+			euler.x = 0; // roll
+		}
+		else
+		{
+			euler.x = (float)atan2(2 * (q.y * q.z + q.w * q.x), q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z);
+			euler.y = (float)asin(-2 * (q.x * q.z - q.w * q.y));
+			euler.z = (float)atan2(2 * (q.x * q.y + q.w * q.z), q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z);
+		}
+
+		return euler;
+	}
 }
 
 void Test_Quaternion_ToMatrix()
 {
-for (int i = 0; i < G_INTENSITY; i++)
-{
-	const auto vec_quat = SerialGenerator(4);
-	const auto q = glm::quat{ vec_quat[0], vec_quat[1], vec_quat[2], vec_quat[3] };
-	const auto m0 = CustomRotateMatrix(q);
-	//const auto m1 = glm::mat4{ q };
-	const auto m1 = glm::mat4_cast(q);
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
-		{
-			assert(glm::epsilonEqual(m0[i][j], m1[i][j], 0.001f));
-		}
-}
+	for (int i = 0; i < G_INTENSITY; i++)
+	{
+		const auto vec_quat = SerialGenerator(4);
+		const auto q = glm::quat{ vec_quat[0], vec_quat[1], vec_quat[2], vec_quat[3] };
+		const auto m0 = CustomRotateMatrix(q);
+		//const auto m1 = glm::mat4{ q };
+		const auto m1 = glm::mat4_cast(q);
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+			{
+				assert(glm::epsilonEqual(m0[i][j], m1[i][j], 0.001f));
+			}
+	}
 }
 
 void Test_Quaternion2Euler()
@@ -517,6 +545,18 @@ void Test_Quaternion2Euler()
 		const auto vec_quat = SerialGenerator(4);
 		const auto q_raw = glm::quat{ vec_quat[0], vec_quat[1], vec_quat[2], vec_quat[3] };
 		const auto q = glm::normalize(q_raw);
+
+
+		const auto v0 =  QuaternionToEuler(q);
+		const auto v1 = glm::eulerAngles(q);
+
+		const auto m0 = glm::eulerAngleZYX(v0.z, v0.y, v0.x);
+		const auto m1 = glm::eulerAngleZYX(v1.z, v1.y, v1.x);
+
+		bool b_m = Compare(m0, m1, 0.00001f);
+
+		const auto b = glm::epsilonEqual(v0, v1, 0.00001f);
+		assert(b.x && b.y && b.z);
 
 		// const auto matrix_q = glm::mat4{ q };
 		const auto matrix_q_raw = glm::mat4{ q_raw };
