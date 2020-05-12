@@ -732,3 +732,71 @@ void Test_GimbalLock()
 	//m1.Print();
 }
 
+void Test_RigionRotate()
+{
+	for (int i = 0; i < G_INTENSITY; i++)
+	{
+		auto GetQuat = [](const glm::vec3& v1, const glm::vec3& v2) {
+			const auto v1_n = glm::normalize(v1);
+			const auto v2_n = glm::normalize(v2);
+			const auto axis = glm::cross(v1_n, v2_n);
+			const auto theta = glm::acos(glm::dot(v1_n, v2_n));
+			return glm::normalize(glm::quat{ cos(theta * 0.5f), axis * sin(theta * 0.5f) });
+		};
+
+		const auto vec_v1 = SerialGenerator(3);
+		const auto vec_v2 = SerialGenerator(3);
+
+		const auto v1 = glm::normalize(glm::vec3{vec_v1[0], vec_v1[1], vec_v1[2]});
+		const auto v2 = glm::normalize(glm::vec3{vec_v2[0], vec_v2[1], vec_v2[2]});
+
+		const auto q_r = GetQuat(v1, v2);
+
+		const auto m_r = glm::mat3{ q_r };
+
+		const auto v3 = m_r *v1;
+			
+		int ai = 1;
+
+		auto RandTransform = []()
+		{
+			const auto vec_quat = SerialGenerator(4);
+			const auto vec_translate = SerialGenerator(3);
+			auto q = glm::quat{ vec_quat[0], vec_quat[1], vec_quat[2], vec_quat[3] };
+			auto pos = glm::vec4{ vec_translate[0], vec_translate[1], vec_translate[2], 1.0f };
+			q = glm::normalize(q);
+			auto m = glm::mat4{ q };
+			m[3] = pos;
+			return m;
+		};
+
+		const auto q0 = glm::quat{ 0, 0.0f, 0.0f, 1.0f };
+		auto point = glm::vec3{ 1.0f, 0.0f, 0.0f };
+		auto p0 = q0 * point;
+
+		const auto transform_L1 = RandTransform();
+		const auto transform_inverse = glm::inverse(transform_L1);
+		const auto transform_L2 = RandTransform();
+
+		const auto m_L1_2_world = glm::inverse(transform_L1); // #TODO
+		const auto m_L2_2_world = glm::inverse(transform_L2); // #TODO
+		const auto m_world_2_L1 = glm::inverse(m_L1_2_world);
+		const auto m_world_2_L2 = glm::inverse(m_L2_2_world);
+		const auto m_L1_2_L2 = m_world_2_L2*m_L1_2_world; // #TODO
+		const auto m_L2_2_L1 = glm::inverse(m_L1_2_L2);
+
+		const auto arr = SerialGenerator(3);
+		const auto v = glm::vec4{ arr[0], arr[1], arr[2], 1.0f};
+
+		// v == m_L1_2_world * m_L2_2_L1 * m_world_2_L2* v;
+		// v == m_L2_2_world * m_L1_2_L2 * m_world_2_L1* v;
+		const auto Restore_L2 = m_L1_2_world * m_L2_2_L1 * m_world_2_L2 * v;
+		const auto Restore_L1 = m_L2_2_world * m_L1_2_L2 * m_world_2_L1 * v;
+
+		const auto flag1 = glm::epsilonEqual(v, Restore_L2, 0.0001f);
+		const auto flag2 = glm::epsilonEqual(v, Restore_L1, 0.0001f);
+	
+		int interrupter = 1;
+	}
+}
+

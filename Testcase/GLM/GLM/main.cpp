@@ -85,14 +85,143 @@ public:
 
 int main()
 {
-	float x = 368536.493263f - 368394.0f;
-	float y = 3459015.067785f - 3459110.0f;
-	float z = 17.0110265f;
-	float half_pi = -1.570796f;
-	glm::vec4 p{x, y, z, 0.0f};
-	glm::vec3 r_adjust = { half_pi, 0.0f, 0.0f };
-	auto m_hwspace_2_gwcpS = glm::eulerAngleZYX(r_adjust.z, r_adjust.y, r_adjust.x);
-	p = m_hwspace_2_gwcpS*p;
+	// quat which can rotate v1 to v2
+	// v1 and v2 are not 
+	auto GetQuat = [](const glm::vec3& v1, const glm::vec3& v2) {
+		auto v1_n = glm::normalize(v1);
+		auto v2_n = glm::normalize(v2);
+		const auto dot = glm::dot(v1_n, v2_n);
+		if (glm::epsilonEqual(dot, 1.0f, glm::epsilon<float>()))
+		{
+			return glm::quat{ 1.0f, 0.0f, 0.0f, 0.0f };
+		}
+		else if (glm::epsilonEqual(dot, -1.0f, glm::epsilon<float>()))
+		{
+			if (glm::epsilonEqual(v2_n.x, 0.0f, glm::epsilon<float>()))
+			{
+				v2_n.x = glm::epsilon<float>();
+				v2_n = glm::normalize(v2_n);
+			}
+			else
+			{
+				v2_n.x = 0.0f;
+				v2_n.y = glm::epsilon<float>();
+				v2_n = glm::normalize(v2_n);
+			}
+		}
+
+		const auto axis = glm::normalize(glm::cross(v1_n, v2_n));
+		const auto theta = glm::acos(glm::dot(v1_n, v2_n));
+		return glm::quat{ cos(theta * 0.5f), axis * sin(theta * 0.5f) };
+	};
+
+	{
+		const auto m0 = glm::eulerAngleXYZ(glm::half_pi<float>(), 0.0f, 0.0f);
+		const auto m1 = glm::eulerAngleZYX(0.0f, glm::half_pi<float>(), 0.0f);
+		const auto m2 = m0 * m1;
+
+		const auto q_0 = glm::quat{ m0 };
+		const auto q_1 = glm::quat{ m1 };
+		const auto q_2 = glm::quat{ m2 };
+
+		const auto v0 = glm::vec4{0.f, 0.f, 1.f, 0.0f};
+
+		const auto v1 = glm::vec4{0.f, 0.f, -1.f, 0.0f};
+
+		const auto q_v0_2_v1 = GetQuat(glm::vec3{ v0 }, glm::vec3{v1});
+		const auto m_v0_2_v1 = glm::mat3{ q_v0_2_v1 };
+
+		const auto v2 = m_v0_2_v1 * v0;
+
+
+		v2;
+		int i = 0;
+	}
+
+
+
+
+
+
+
+	const auto v1 = glm::vec3{ 1.0f, 0.0f, 0.0f };
+	const auto v2 = glm::vec3{ 0.0f, 1.0f, 0.0f };
+	
+	auto r_qua = GetQuat(v1, v2);
+
+	const auto m_r = glm::mat3{ r_qua};
+	const auto v3 = m_r * v1;
+
+
+	auto m0 = glm::eulerAngleXYZ(glm::pi<float>(), 0.0f, 0.0f);
+	auto m1 = glm::eulerAngleXYZ(glm::half_pi<float>(), 0.0f, 0.0f);
+	auto m2 = glm::eulerAngleXYZ(0.0f, glm::half_pi<float>(), 0.0f);
+
+	auto q0 =  glm::quat(m0);
+	auto q1 = glm::quat(m1);
+	auto q2 = glm::quat(m2);
+
+	auto q_east = glm::quat{ 0.67f, 0.71f, -0.16f, 0.15f };
+	auto q_west = glm::quat{ 0.37f, 0.36f, 0.60f, -0.61f };
+
+	//auto q_east_n = glm::normalize(q_east);
+	//auto q_west_n = glm::normalize(q_west);
+
+	q_east = glm::normalize(q_east);
+	q_west = glm::normalize(q_west);
+
+	auto v = glm::dot(q_west,q_east);
+
+	auto m_east = glm::mat4{q_east};
+	auto m_west = glm::mat4{q_west};
+
+	auto v_east = m_east * glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f };
+	auto v_west = m_west * glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f };
+
+	auto v_east1 = m_east * glm::vec4{ 0.0f, 1.0f, 1.0f, 1.0f };
+	auto v_west1 = m_west * glm::vec4{ 0.0f, 1.0f, 1.0f, 1.0f };
+
+	auto compare = glm::epsilonEqual(v_east, v_west, 0.001f);
+	auto compar1 = glm::epsilonEqual(v_east1, v_west1, 0.001f);
+
+	auto v_east_0 = glm::conjugate(q_east) * glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f } *q_east;
+	auto v_west_0 = glm::conjugate(q_west) * glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f } *q_west;
+
+	auto v_west_10 = m0 * glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f };
+	auto v_west_11 = m1 * glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f };
+	auto v_west_1 = glm::conjugate(q0) * glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f } *q0;
+	auto v_west_2 = glm::conjugate(q1) * glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f } *q0;
+
+	Test_RigionRotate();
+
+	const auto c_theta = glm::cos(glm::pi<float>()/3);
+	const auto s_theta = glm::sin(glm::pi<float>()/3);
+
+	const auto vec_u = glm::vec3(c_theta, s_theta, 0);
+	const auto vec_up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	glm::mat3 m = glm::eulerAngleZYX(glm::pi<float>()/3, 0.0f, 0.0f);
+
+//	const auto lm = glm::lookAtRH(glm::vec3{ 0 }, -m[2], m[1]);
+	auto lookAtMatrix = [](glm::vec3& view, glm::vec3& up) {
+		glm::mat3 matrix{ 1 };
+		glm::vec3 z = glm::normalize(view);
+		glm::vec3 x = glm::normalize(glm::cross(up, z));
+		glm::vec3 y = glm::cross(z, x);
+		matrix[0] = x;
+		matrix[1] = y;
+		matrix[2] = z;
+		return matrix;
+	};
+
+	const auto lm = lookAtMatrix(m[2], m[1]);
+
+	const auto world_2_local = glm::transpose(m);
+	const auto local_2_world = glm::mat3{ lm };
+
+	const auto local = world_2_local * vec_u; // should be x_axis
+	const auto world = local_2_world * glm::vec3{ 1.f, 0.0f, 0 };
+
 	int i = 0;
 	// Scene 1
 	{
@@ -202,6 +331,8 @@ int main()
 		std::cout << "scene2: "  << "x: " << x << ", y: " << y << ", z: " << z << std::endl;
 
 		const auto matrix_transpose = glm::transpose(matrix);
+
+		const auto vec_t = matrix_transpose * glm::vec4{0.0f, 0.0f, 1.0f, 1.0f};
 
 		glm::extractEulerAngleZYX(matrix_transpose, z, y, x);
 		std::cout << "scene2 after transpose : " << "x: " << x << ", y: " << y << ", z: " << z << std::endl;

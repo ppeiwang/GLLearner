@@ -126,3 +126,5 @@ void Test_Euler2Quaternion();
 void Test_Matrix_GLM_EulerMatrix();
 
 void Test_GimbalLock();
+
+void Test_RigionRotate();
