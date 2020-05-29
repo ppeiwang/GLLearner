@@ -5,86 +5,124 @@
 #include "TestCase.h"
 #include "StringMatrix.h"
 #include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/quaternion.hpp"
 #include "glm/gtx/euler_angles.hpp"
 
-namespace ASSIM
-{
-	class aiMatrix4x4t
-	{
-	public:
-		typedef float TReal;
-
-		aiMatrix4x4t(TReal _a1, TReal _a2, TReal _a3, TReal _a4,
-			TReal _b1, TReal _b2, TReal _b3, TReal _b4,
-			TReal _c1, TReal _c2, TReal _c3, TReal _c4,
-			TReal _d1, TReal _d2, TReal _d3, TReal _d4) :
-			a1(_a1), a2(_a2), a3(_a3), a4(_a4),
-			b1(_b1), b2(_b2), b3(_b3), b4(_b4),
-			c1(_c1), c2(_c2), c3(_c3), c4(_c4),
-			d1(_d1), d2(_d2), d3(_d3), d4(_d4) {
-			// empty
-		}
-
-		TReal* operator[](unsigned int p_iIndex) {
-			if (p_iIndex > 3) {
-				return nullptr;
-			}
-			switch (p_iIndex) {
-			case 0:
-				return &a1;
-			case 1:
-				return &b1;
-			case 2:
-				return &c1;
-			case 3:
-				return &d1;
-			default:
-				break;
-			}
-			return &a1;
-		}
-
-		TReal a1, a2, a3, a4;
-		TReal b1, b2, b3, b4;
-		TReal c1, c2, c3, c4;
-		TReal d1, d2, d3, d4;
-	};
-}
-
-class OperatorTest
+class Rotation
 {
 public:
-	OperatorTest() = default;
-
-	OperatorTest(int _x, int _y, int _z) :
-		x(_x), y(_y), z(_z)
-	{
-
-	}
-
-	~OperatorTest() = default;
-
-	OperatorTest operator + (const OperatorTest& o) const
-	{
-		return { x + o.x, y + o.y, z + o.z };
-	}
-
-	void Print()
-	{
-		TextTable t('-', '|', '+');
-		t.add(std::to_string(x));
-		t.add(std::to_string(y));
-		t.add(std::to_string(z));
-		t.endOfRow();
-		t.setAlignment(2, TextTable::Alignment::RIGHT);
-		std::cout << t << std::endl;
-	}
-
-	int x, y, z;
+	float x, y, z;
 };
+
+int Sign(double d)
+{
+	if (d > 0)
+		return 1;
+	else if (d < 0)
+		return -1;
+	return 0;
+}
+
+Rotation QuaternionToEuler(glm::quat q) // Z-Y-X Euler angles
+{
+	Rotation euler;
+	const double Epsilon = 0.0009765625f;
+	const double Threshold = 0.5f - Epsilon;
+
+	double TEST = q.w * q.y - q.x * q.z;
+
+	if (TEST < -Threshold || TEST > Threshold) // ÆæÒì×ËÌ¬,¸©Ñö½ÇÎª¡À90¡ã
+	{
+		int sign = Sign(TEST);
+
+		euler.z = -2 * sign * glm::atan(q.x, q.w); // yaw
+
+		euler.y = sign * (3.1415926f / 2.0f); // pitch
+
+		euler.x = 0; // roll
+	}
+	else
+	{
+		euler.x = glm::atan(2 * (q.y * q.z + q.w * q.x), q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z);
+		euler.y = glm::atan(-2 * (q.x * q.z - q.w * q.y));
+		euler.z = glm::atan(2 * (q.x * q.y + q.w * q.z), q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z);
+	}
+
+	return euler;
+}
+
+void Example()
+{
+	// Rotation
+
+	/* Matrix to quaternion */
+	glm::quat q_from_matrix3x3{ glm::mat3{1} }; // cast operator will handle this
+
+	glm::quat q_from_matrix4x4{ glm::mat4{1} }; // cast operator will handle this
+
+	/* Matrix to Euler rotation */
+	float x, y, z; // radians
+	glm::extractEulerAngleXYZ(glm::mat4{ 1 }, x, y, z);
+
+	glm::extractEulerAngleZYX(glm::mat4{ 1 }, z, y, x); // pay attention to the parameter order, z->y->x
+
+	/* Quaternion to matrix */
+	glm::mat3 matrix3x3_from_quaternion{ glm::quat{1.0f, 0, 0, 0} }; // cast operator will handle this
+
+	glm::mat4 matrix4x4_from_quaternion{ glm::quat{1.0f, 0, 0, 0} }; // cast operator will handle this
+
+	/* Quaternion to Euler rotation */
+	glm::vec3 euler_angles_zyx = glm::eulerAngles(glm::quat{ 1.0f, 0, 0, 0 }); // rotation matrices do not commute in multiplication, and the rotation around x->y->z order means z->y->x matrices order
+
+	/* Euler rotation to matrix */
+	glm::mat3 matrix3x3_from_euler = glm::eulerAngleXYZ(0.0f, 0.0f, 0.0f); // rotation order is z axis -> y axis -> x axis, the equal matirces multiplication order is x->y->z
+
+	glm::mat3 matrix4x4_from_euler = glm::eulerAngleZYX(0.0f, 0.0f, 0.0f); // rotation order is x axis -> y axis -> z axis, the equal matirces multiplication order is z->y->x
+
+	/* Euler rotation to quaternion */
+	float euler_x, euler_y, euler_z; // radians
+	euler_x = euler_y = euler_z = 0.0f;
+	glm::quat quaternion_from_euler{ glm::vec3{euler_x, euler_y, euler_z} }; // the original rotation order is x axis ->  y axis -> z axis, matrices multip
+}
 
 int main()
 {
+	{
+		const auto q_r_0 = glm::quat{ glm::vec3{glm::pi<float>(), 0, 0} };
+		const auto q_r = glm::rotate(glm::quat{ 0.707106769f, 0.707106769f, 0, 0 }, glm::half_pi<float>(), glm::vec3{ 1.0f, 0, 0 });
+		int i = 0;
+	}
+
+	const auto q_z = glm::quat{ 0.707f, 0.f, 0.f, 0.707f };
+	const auto q_x = glm::quat{ 0.707f, 0.707f, 0.f, 0.f };
+	const auto q_y = glm::quat{ 0.f, 0.f, 1.0f, 0.0f };
+	const auto q_z_x = q_x * q_z;
+
+	glm::vec3 e_x = glm::eulerAngles(q_x);
+	glm::vec3 e_y = glm::eulerAngles(q_y);
+	glm::vec3 e_z = glm::eulerAngles(q_z);
+	glm::vec3 e_z_x = glm::eulerAngles(q_z_x);
+
+	e_y.x = 0.f;
+	e_y.y = glm::pi<float>();
+	e_y.z = 0.f;
+
+	glm::quat q_e_y{ e_y };
+
+	auto rx = QuaternionToEuler(q_x);
+	auto ry = QuaternionToEuler(q_y);
+	auto rz = QuaternionToEuler(q_z);
+	auto rzx =QuaternionToEuler(q_z_x);
+
+	const auto q_z_0 = glm::inverse(q_z);
+	const auto v_begin = glm::vec3{ 1.0f, 0.0f, 0.0f };
+	const auto v_after = glm::rotate(q_z, v_begin);
+
+	const auto v_after_0 = glm::rotate(q_x, v_after);
+	const auto v_after_1 = glm::rotate(q_z_x, v_begin);
+
+	const auto v_af_2 = q_y * v_begin;
+
 	// quat which can rotate v1 to v2
 	// v1 and v2 are not 
 	auto GetQuat = [](const glm::vec3& v1, const glm::vec3& v2) {

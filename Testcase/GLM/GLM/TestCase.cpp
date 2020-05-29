@@ -447,7 +447,7 @@ void Test_Quaternion_FromMatrix()
 
 		/*
 		Note:
-			It's not consistent that the quaternion constructs from rotation matrix compared to original quaternion which forms the input rotation matrix.
+			It's not consistent that a quaternion constructs from rotation matrix compared to the original quaternion which forms the input rotation matrix.
 		But, both the quaternion(original and constructed from rotation matrix) can construct a consistent rotation matrix
 		*/
 
