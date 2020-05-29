@@ -6,11 +6,13 @@
 #include "shaderLoader.h"
 #include "stb/stb_image.h"
 #include "Logger.h"
+#include <random>
 
 //#debug begin
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtc/constants.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/euler_angles.hpp"
 //#debug end
 
 #if 1
@@ -78,17 +80,51 @@ int main()
 	ShaderLoader shader_uniform(R"(shader/vs.glsl)", R"(shader/fs_texture.glsl)");
 
 	float vertices[] = {
-		0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f, // red
-		0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 0.0f,  // green
-		0.5f, 0.0f,  0.0f, 0.0f, 0.0f, 1.0f, 0.75f, 0.5f, // blue
-		0.0f, 1.0f,  0.0f, 1.0f, 1.0f, 1.0f, 0.5f, 1.0f,// white
-		-0.5f, 0.f,  0.0f, 0.0f, 0.0f, 0.0f, 0.25f, 0.5f// black
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 	unsigned int indices[] = {
-		1, 2, 0,
-		0, 2, 3,
-		3, 0, 4,
-		4, 0, 1,
+		0, 1, 3, // first triangle
+		1, 2, 3  // second triangle
 	};
 
 	unsigned int VBO[2], VAO[2], EBO[2];
@@ -113,24 +149,24 @@ int main()
 	//	If stride is 0, the generic vertex attributes are understood to be tightly packed in the array. The initial value is 0
 	// @ pointer Specifies a offset of the first component of the first generic vertex attribute in the array 
 	//	in the data store of the buffer currently bound to the GL_ARRAY_BUFFER target
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6*sizeof(float)));
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));
+	//glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
 	glEnableVertexAttribArray(2);
 
 	glBindVertexArray(VAO[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[1]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(float), indices + 6, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[1]);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(float), indices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6*sizeof(float)));
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));
+	//glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
 	glEnableVertexAttribArray(2);
 
 	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex
@@ -200,6 +236,24 @@ int main()
 
 	float t = 1.0f;
 
+	auto fRand = [](int min, int max)
+	{
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> dis(min, max);
+		glm::vec3 v;
+		for (size_t i = 0; i < 3; i++)
+			v[i] = dis(gen);
+		return v;
+	};
+
+	glm::vec3 arr_positon [12]{};
+	for (size_t i = 0; i < 12; i++)
+	{
+		arr_positon[i] = fRand(-500, 500);
+		arr_positon[i] /= 50.f;
+	}
+
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
@@ -226,25 +280,44 @@ int main()
 
 			glClearColor(color_c.x, color_c.y, color_c.z, color_c.w);
 
-			glClear(GL_COLOR_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glEnable(GL_DEPTH_TEST);
 
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, textures[0]);
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, textures[1]);
 
-			shader_interpolate.Use();
-			glBindVertexArray(VAO[0]);
-			//glDrawArrays(GL_TRIANGLES, 0, 3);
-			// @count Specifies the number of elements to be rendered
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
 			float timeValue = glfwGetTime();
 			const float normalized_value = (sin(timeValue) / 2.0f) + 0.5f;
 			shader_uniform.Use();
 			shader_uniform.SetFloatVec("ourColor", glm::vec4{normalized_value, 0.0f, 0.0f, 1.0f});
+
 			glBindVertexArray(VAO[1]);
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+
+			// transform
+			for(size_t i = 0; i < 12; i++)
+			{
+				glm::vec3 axis{ 0.57735f, 0.57735f, 0.57735f };
+				const float Sin = sin(timeValue * 0.5f + 20.0f * i);
+				glm::quat q{ cos(timeValue * 0.5f), axis.x * Sin, axis.y * Sin, axis.z * Sin };
+				q = glm::normalize(q);
+				auto modelMatrix = glm::mat4{ q };
+				const glm::vec3& position = arr_positon[i];
+				modelMatrix = glm::translate(modelMatrix, position);
+
+				auto viewMatrix = glm::translate(glm::mat4{ 1, }, glm::vec3{ 0.0f, 0.0f, -30.0f });
+				auto projectMatrix = glm::perspective(glm::radians(30.f), 800.f / 600.f, 0.1f, 1000.f);
+				shader_uniform.SetMatrix("model", modelMatrix);
+				shader_uniform.SetMatrix("view", viewMatrix);
+				shader_uniform.SetMatrix("projection", projectMatrix);
+				
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+			}
+
+			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		}
 

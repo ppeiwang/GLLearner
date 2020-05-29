@@ -3,6 +3,7 @@
 #include <iostream>
 #include "shaderLoader.h"
 #include "glad/glad.h"
+#include "glm/gtc/type_ptr.hpp"
 
 ShaderLoader::ShaderLoader(const std::string& vertex_path, const std::string& fragment_path)
 {
@@ -88,6 +89,11 @@ void ShaderLoader::SetFloatVec(const std::string& name, const glm::vec3& vec) co
 void ShaderLoader::SetFloatVec(const std::string& name, const glm::vec4& vec) const
 {
 	glUniform4f(glGetUniformLocation(ID_, name.c_str()), vec.x, vec.y, vec.z, vec.w);
+}
+
+void ShaderLoader::SetMatrix(const std::string& name, const glm::mat4& mat) const
+{
+	glUniformMatrix4fv(glGetUniformLocation(ID_, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
 }
 
 std::string ShaderLoader::Read(const std::string& file_path)

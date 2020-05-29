@@ -155,6 +155,12 @@
     <ClInclude Include="Logger.h" />
     <ClInclude Include="shaderLoader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\fs.glsl" />
+    <None Include="shader\fs1.glsl" />
+    <None Include="shader\fs_texture.glsl" />
+    <None Include="shader\vs.glsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
