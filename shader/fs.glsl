@@ -1,6 +1,7 @@
 #version 330 core
-layout (location = 0) in vec3 aPos;
+out vec4 FragColor;  
+uniform vec4 ourColor; // we set this variable in the OpenGL code.
 void main()
 {
-   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+	FragColor = ourColor;
 }

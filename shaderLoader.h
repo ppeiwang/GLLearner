@@ -1,13 +1,29 @@
-#include <fstream>
-#include <string>
+#pragma once
+#include "Framework.h"
+#include "glm/glm.hpp"
 
 class ShaderLoader
 {
 public:
-	explicit ShaderLoader(const std::string& file_name);
+	ShaderLoader(const std::string& vertex_path, const std::string& fragment_path);
 
-	std::string DumpShader() const;
+	// use/activate the shader
+	void Use();
 
-private:
-	std::string file_name_;
+	// utility uniform functions
+	void SetBool(const std::string& name, bool value) const;
+
+	void SetInt(const std::string& name, int value) const;
+
+	void SetFloat(const std::string& name, float value) const;
+
+	void SetFloatVec(const std::string& name, const glm::vec3& vec) const;
+
+	void SetFloatVec(const std::string& name, const glm::vec4& vec) const;
+
+	static std::string Read(const std::string& file_path);
+
+public:
+	// the program ID
+	unsigned int ID_;
 };
