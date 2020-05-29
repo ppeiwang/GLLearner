@@ -26,6 +26,15 @@ void processInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 }
 
+struct stTextureInfo
+{
+	int width = 0;
+	int height = 0;
+	int nrChannels = 0;
+	unsigned char* ptrData = nullptr;
+	stTextureInfo() = default;
+};
+
 int main()
 {
 	glfwInit();
@@ -147,12 +156,12 @@ int main()
 	//const std::string texture_file_path{"blue-ice-background.jpg"};
 	const std::string texture_fabric_path{"texture/fabric.jpg"};
 	const std::string texture_wood_path{"texture/wood.jpg"};
+	const std::string texture_cartoon_path{"texture/cartoon.jpg"};
 
-	int width, height, nrChannels;
-	unsigned char* fabric_data = stbi_load(texture_fabric_path.c_str(), &width, &height, &nrChannels, 0);
-	unsigned char* wood_data = stbi_load(texture_fabric_path.c_str(), &width, &height, &nrChannels, 0);
-
-	unsigned char* textures_data[2] = {fabric_data, wood_data};
+	stTextureInfo textures_data[2]{};
+	textures_data[0].ptrData = stbi_load(texture_wood_path.c_str(), &textures_data[0].width, &textures_data[0].height, &textures_data[0].nrChannels, 0);
+	textures_data[1].ptrData = stbi_load(texture_cartoon_path.c_str(), &textures_data[1].width, &textures_data[1].height, &textures_data[1].nrChannels, 0);
+	//textures_data[1].ptrData = stbi_load(texture_fabric_path.c_str(), &textures_data[1].width, &textures_data[1].height, &textures_data[1].nrChannels, 0);
 
 	unsigned int textures[2];
 	glGenTextures(2, textures);
@@ -163,12 +172,13 @@ int main()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		const auto ptr_data = textures_data[i];
+		const auto ptr_data = textures_data[i].ptrData;
 		if (ptr_data)
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, textures_data[i]);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textures_data[i].width, textures_data[i].height, 0, GL_RGB, GL_UNSIGNED_BYTE, textures_data[i].ptrData);
 			glGenerateMipmap(GL_TEXTURE_2D);
-			stbi_image_free(textures_data[i]);
+			stbi_image_free(textures_data[i].ptrData);
+			textures_data[i].ptrData = nullptr;
 		}
 		else
 		{
