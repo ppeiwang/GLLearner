@@ -7,6 +7,7 @@
 #include "stb/stb_image.h"
 #include "Logger.h"
 #include <random>
+#include "Camera.h"
 
 //#debug begin
 #include "glm/gtc/quaternion.hpp"
@@ -47,6 +48,7 @@ int main()
 	GLFWwindow* window = glfwCreateWindow(800, 600, "GLFW-Window", NULL, NULL);
 	if (window == NULL)
 	{
+
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return -1;
@@ -106,6 +108,7 @@ int main()
 	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
 	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
 	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
@@ -254,6 +257,9 @@ int main()
 		arr_positon[i] /= 50.f;
 	}
 
+	Camera camera_instance_;	
+	camera_instance_.SetPerspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 1000.f);
+
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
@@ -296,23 +302,28 @@ int main()
 
 			glBindVertexArray(VAO[1]);
 
-
 			// transform
 			for(size_t i = 0; i < 12; i++)
 			{
 				glm::vec3 axis{ 0.57735f, 0.57735f, 0.57735f };
-				const float Sin = sin(timeValue * 0.5f + 20.0f * i);
+				const float Sin = sin(20.0f * i);
 				glm::quat q{ cos(timeValue * 0.5f), axis.x * Sin, axis.y * Sin, axis.z * Sin };
 				q = glm::normalize(q);
 				auto modelMatrix = glm::mat4{ q };
 				const glm::vec3& position = arr_positon[i];
 				modelMatrix = glm::translate(modelMatrix, position);
 
-				auto viewMatrix = glm::translate(glm::mat4{ 1, }, glm::vec3{ 0.0f, 0.0f, -30.0f });
-				auto projectMatrix = glm::perspective(glm::radians(30.f), 800.f / 600.f, 0.1f, 1000.f);
+				camera_instance_.SetPosition(glm::vec3{ 0.f });
+				camera_instance_.Yaw(timeValue);
+
+				const auto& viewMatrix = camera_instance_.GetViewMatrix();
+				const auto& projMatrix = camera_instance_.GetProjectMatrix();
+
+				//auto viewMatrix = glm::translate(glm::mat4{ 1, }, glm::vec3{ 0.0f, 0.0f, -30.0f });
+				//auto projectMatrix = glm::perspective(glm::radians(30.f), 800.f / 600.f, 0.1f, 1000.f);
 				shader_uniform.SetMatrix("model", modelMatrix);
 				shader_uniform.SetMatrix("view", viewMatrix);
-				shader_uniform.SetMatrix("projection", projectMatrix);
+				shader_uniform.SetMatrix("projection", projMatrix);
 				
 				glDrawArrays(GL_TRIANGLES, 0, 36);
 			}
