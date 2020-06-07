@@ -14,9 +14,9 @@ Camera::Camera()
 	, target_{0.f, 0.f, -1.f}
 	, up_direction_{ 0.f, 1.f, 0.f }
 	, raw_view_direction_{0.f, 0.f, -1.f}
-	, rotationMatrix_{1.f}
-	, viewMatrix_{1.f}
-	, projMatrix_{1.f}
+	, rotation_matrix_{1.f}
+	, view_matrix_{1.f}
+	, projection_matrix{1.f}
 {
 
 }
@@ -24,16 +24,16 @@ Camera::Camera()
 void Camera::UpdateCamera()
 {
 	// rotate view direction
-	rotationMatrix_ = glm::mat3{rotation_};
+	rotation_matrix_ = glm::mat3{rotation_};
 
-	glm::vec3 direction = rotationMatrix_ * raw_view_direction_;
+	glm::vec3 direction = rotation_matrix_ * raw_view_direction_;
 	glm::vec3 new_target{ position_.x + direction.x, position_.y + direction.y, position_.z + direction.z };
 
 	// rotate up direction
-	glm::vec3 new_up_direction = rotationMatrix_ * up_direction_ ;
+	glm::vec3 new_up_direction = rotation_matrix_ * up_direction_ ;
 
-	viewMatrix_ = glm::lookAtRH(position_, new_target, up_direction_);
-	projMatrix_ = glm::perspective(fov_, asp_, zNear_, zFar_);
+	view_matrix_ = glm::lookAtRH(position_, new_target, up_direction_);
+	projection_matrix = glm::perspective(fov_, asp_, zNear_, zFar_);
 }
 
 void Camera::Update()
@@ -74,7 +74,7 @@ void Camera::SetPerspective(float fov, float asp, float zNear, float zFar)
 
 void Camera::Pitch(float angleRad)
 {
-	const auto& x_axis = rotationMatrix_[0];// rotate around the current x axis
+	const auto& x_axis = rotation_matrix_[0];// rotate around the current x axis
 	Rotate(angleRad, x_axis);
 }
 
@@ -86,14 +86,14 @@ void Camera::Yaw(float angleRad)
 	}
 	else
 	{
-		const auto& y_axis = rotationMatrix_[1];// rotate around the current y axis
+		const auto& y_axis = rotation_matrix_[1];// rotate around the current y axis
 		Rotate(angleRad, y_axis );
 	}
 }
 
 void Camera::Roll(float angleRad)
 {
-	const auto& z_axis = rotationMatrix_[2];// rotate around the current z axis
+	const auto& z_axis = rotation_matrix_[2];// rotate around the current z axis
 	Rotate(angleRad, z_axis );
 }
 
@@ -138,28 +138,25 @@ const glm::vec3& Camera::GetUpDirection() const noexcept
 
 glm::vec3 Camera::GetForward() const noexcept
 {
-	assert(false);
-	return glm::vec3{};
+	return glm::vec3{ -view_matrix_[2] };
 }
 
 glm::vec3 Camera::GetRight() const noexcept
 {
-	assert(false);
-	return glm::vec3{};
+	return glm::vec3{view_matrix_[0]};
 }
 
 glm::vec3 Camera::GetUp() const noexcept
 {
-	assert(false);
-	return glm::vec3{};
+	return glm::vec3{view_matrix_[1]};
 }
 
 const glm::mat4& Camera::GetViewMatrix() const noexcept
 {
-	return viewMatrix_;
+	return view_matrix_;
 }
 
 const glm::mat4& Camera::GetProjectMatrix() const noexcept
 {
-	return projMatrix_;
+	return projection_matrix;
 }

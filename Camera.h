@@ -80,10 +80,10 @@ private:
 
 	glm::quat rotation_;
 
-	glm::mat3 rotationMatrix_;
+	glm::mat3 rotation_matrix_;
 
-	glm::mat4 viewMatrix_;
+	glm::mat4 view_matrix_;
 
-	glm::mat4 projMatrix_;
+	glm::mat4 projection_matrix;
 		
 };

@@ -1,5 +1,9 @@
 #include <iostream>
 #include <string>
+#include <chrono>
+#include <thread>
+#include <sstream>
+#include <iomanip>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
@@ -8,6 +12,7 @@
 #include "Logger.h"
 #include <random>
 #include "Camera.h"
+#include "ImguiManager.h"
 
 //#debug begin
 #include "glm/gtc/quaternion.hpp"
@@ -37,6 +42,19 @@ struct stTextureInfo
 	unsigned char* ptrData = nullptr;
 	stTextureInfo() = default;
 };
+void SetWindowTitle(GLFWwindow* window, const std::string& title, float frame_rate)
+{
+	if (window)
+	{
+		std::stringstream ss;
+		ss << std::fixed << std::setprecision(2) << frame_rate;
+		std::string title_concat{ title };
+		title_concat.append("   Frame Rate: ");
+		title_concat.append(ss.str());
+		glfwSetWindowTitle(window, title_concat.c_str());
+	}
+
+}
 
 int main()
 {
@@ -44,6 +62,10 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+
 
 	GLFWwindow* window = glfwCreateWindow(800, 600, "GLFW-Window", NULL, NULL);
 	if (window == NULL)
@@ -53,6 +75,8 @@ int main()
 		glfwTerminate();
 		return -1;
 	}
+
+	ImguiManager::GetInstance().Init(window);
 
 	glfwMakeContextCurrent(window);
 
@@ -237,8 +261,6 @@ int main()
 
 	glm::vec4 color_b{ 0.0f, 1.0f, 1.0f, 1.0f };
 
-	float t = 1.0f;
-
 	auto fRand = [](int min, int max)
 	{
 		std::random_device rd;
@@ -250,41 +272,106 @@ int main()
 		return v;
 	};
 
-	glm::vec3 arr_positon [12]{};
-	for (size_t i = 0; i < 12; i++)
+	const size_t Box_Count = 50;
+
+	glm::vec3 arr_positon [Box_Count]{};
+	for (size_t i = 0; i < Box_Count; i++)
 	{
 		arr_positon[i] = fRand(-500, 500);
-		arr_positon[i] /= 50.f;
+		arr_positon[i] /= 20.f;
 	}
 
 	Camera camera_instance_;	
 	camera_instance_.SetPerspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 1000.f);
 
+	unsigned long long frame = 0;
+	unsigned long long ms = 0;
+
+	constexpr std::chrono::seconds time_seconds { 1 };
+	constexpr std::chrono::nanoseconds time_per_frame_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(time_seconds) / 60;
+	constexpr std::chrono::milliseconds time_per_frame_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(time_per_frame_nanoseconds);
+
+	std::chrono::high_resolution_clock::time_point last = std::chrono::high_resolution_clock::now();
+
 	while (!glfwWindowShouldClose(window))
-	{
+	{	
+		++frame;
+
 		processInput(window);
 
 		// rendering
 		{
+			glm::vec3 translation_increment { 0 };
+			glm::vec3 rotation_increment{ 0 };
+
+			const float translation_delta = 0.5f;
+			const float rotation_delta = 0.02f;
+			// left
 			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 			{
-				if (t < 1.0f)
-				{
-					t += 0.0005f;
-				}
+				translation_increment.x -= translation_delta;
 			}
 
+			// rigth
 			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 			{
-				if (t > 0.0f)
-				{
-					t -= 0.0005f;
-				}
+				translation_increment.x += translation_delta;
 			}
 
-			glm::vec4 color_c = (1 - t) * color_a + t * color_b;
+			// forward
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			{
+				translation_increment.z = translation_delta;
+			}
 
-			glClearColor(color_c.x, color_c.y, color_c.z, color_c.w);
+			// backward
+			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			{
+				translation_increment.z -= translation_delta;
+			}
+
+			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+			{
+				// x+
+				rotation_increment.x += rotation_delta;
+			}
+
+			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+			{
+				// x-
+				rotation_increment.x -= rotation_delta;
+			}
+
+			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+			{
+				// y+
+				rotation_increment.y += rotation_delta;
+			}
+
+			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+			{
+				// y-
+				rotation_increment.y -= rotation_delta;
+			}
+
+			const auto right_direction =  camera_instance_.GetRight();
+			const auto up_direction = camera_instance_.GetUp();
+			const auto forward_direction = camera_instance_.GetForward();
+
+			const auto camera_current_position = camera_instance_.GetPosition();
+			const auto camera_new_position = (camera_current_position)+
+				right_direction * translation_increment.x +
+				up_direction * translation_increment.y +
+				forward_direction * translation_increment.z;
+
+			camera_instance_.SetPosition(camera_new_position);
+
+			camera_instance_.Pitch(rotation_increment.x);
+			camera_instance_.Yaw(rotation_increment.y);
+			camera_instance_.Roll(rotation_increment.z);
+			camera_instance_.Update();
+
+			glClearColor(color_a.x, color_a.y, color_a.z, color_a.w);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -303,19 +390,15 @@ int main()
 			glBindVertexArray(VAO[1]);
 
 			// transform
-			for(size_t i = 0; i < 12; i++)
+			for(size_t i = 0; i < Box_Count; i++)
 			{
 				glm::vec3 axis{ 0.57735f, 0.57735f, 0.57735f };
 				const float Sin = sin(20.0f * i);
-				glm::quat q{ cos(timeValue * 0.5f), axis.x * Sin, axis.y * Sin, axis.z * Sin };
+				glm::quat q{ cos(20.0f * i * 0.5f), axis.x * Sin, axis.y * Sin, axis.z * Sin };
 				q = glm::normalize(q);
-				auto modelMatrix = glm::mat4{ q };
+				auto modelMatrix = glm::mat4{ 1 };
 				const glm::vec3& position = arr_positon[i];
 				modelMatrix = glm::translate(modelMatrix, position);
-
-				camera_instance_.SetPosition(glm::vec3{ 0.f });
-				camera_instance_.Yaw(timeValue);
-
 				const auto& viewMatrix = camera_instance_.GetViewMatrix();
 				const auto& projMatrix = camera_instance_.GetProjectMatrix();
 
@@ -335,7 +418,27 @@ int main()
 		glfwPollEvents();
 
 		glfwSwapBuffers(window);
+
+		// frame rate
+		{
+			std::chrono::nanoseconds time_passed = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - last);
+			std::this_thread::sleep_for(time_passed);
+
+			const std::chrono::time_point<std::chrono::high_resolution_clock> time_stamp = std::chrono::high_resolution_clock::now();
+			std::chrono::nanoseconds time_per_frame_nanosecond = time_stamp - last;
+			const float time_per_frame_second = time_per_frame_nanoseconds.count() * 1e-9f;
+			const float frame_rate = 1.0f / time_per_frame_second;
+			last = time_stamp;
+
+			SetWindowTitle(window, title, frame_rate);
+
+			ms += time_per_frame_milliseconds.count();
+		}
+
+		ImguiManager::GetInstance().Update();
 	}
+
+	ImguiManager::GetInstance().DeInit();
 
 	glfwTerminate();
 
