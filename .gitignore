@@ -33,3 +33,5 @@
 # Binary Folder
 *x64/
 .vs/
+
+imgui.ini

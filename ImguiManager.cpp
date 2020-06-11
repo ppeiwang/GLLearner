@@ -69,8 +69,8 @@ void ImguiManager::Update()
 	if (show_demo_window)
 		ImGui::ShowDemoWindow(&show_demo_window);
 
+
 	ImGui::Render();
-	int display_w, display_h;
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
