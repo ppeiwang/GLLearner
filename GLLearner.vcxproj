@@ -99,7 +99,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)thirdparty\;$(ProjectDir)thirdparty\glfw\include\;$(ProjectDir)thirdparty\glm\;$(ProjectDir)thirdparty\glad\include\;$(ProjectDir)thirdparty\imgui\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)thirdparty\;$(ProjectDir)thirdparty\glfw\include\;$(ProjectDir)thirdparty\glm\;$(ProjectDir)thirdparty\glad\include\;$(ProjectDir)thirdparty\imgui\include\;$(ProjectDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,7 +146,9 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="EventHandle.cpp" />
-    <ClCompile Include="ImguiManager.cpp" />
+    <ClCompile Include="gui\CameraPanel.cpp" />
+    <ClCompile Include="gui\Gui.cpp" />
+    <ClCompile Include="gui\GUIManager.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PMath.cpp" />
@@ -164,10 +166,14 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="EventHandle.h" />
     <ClInclude Include="Framework.h" />
-    <ClInclude Include="ImguiManager.h" />
+    <ClInclude Include="gui\CameraPanel.h" />
+    <ClInclude Include="gui\Gui.h" />
+    <ClInclude Include="gui\GUIManager.h" />
+    <ClInclude Include="gui\GuiPanel.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="PMath.h" />
     <ClInclude Include="shaderLoader.h" />
+    <ClInclude Include="Singleton.h" />
     <ClInclude Include="thirdparty\imgui\include\imconfig.h" />
     <ClInclude Include="thirdparty\imgui\include\imgui.h" />
     <ClInclude Include="thirdparty\imgui\include\imgui_impl_glfw.h" />

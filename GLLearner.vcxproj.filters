@@ -25,6 +25,12 @@
     <Filter Include="imgui\src">
       <UniqueIdentifier>{bc569e2e-80c3-4dfa-9e29-be951e36351f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\gui">
+      <UniqueIdentifier>{855b05e3-cc71-438e-a7a8-9ed394d812ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui">
+      <UniqueIdentifier>{f34054b9-9882-438b-943a-82f9ca10ad27}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -69,7 +75,13 @@
     <ClCompile Include="thirdparty\imgui\src\imgui_draw.cpp">
       <Filter>imgui\src</Filter>
     </ClCompile>
-    <ClCompile Include="ImguiManager.cpp">
+    <ClCompile Include="gui\GUIManager.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\Gui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\CameraPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -104,9 +116,6 @@
     <ClInclude Include="thirdparty\imgui\include\imgui_impl_glfw.h">
       <Filter>imgui\include</Filter>
     </ClInclude>
-    <ClInclude Include="ImguiManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="thirdparty\imgui\include\imconfig.h">
       <Filter>imgui\include</Filter>
     </ClInclude>
@@ -118,6 +127,21 @@
     </ClInclude>
     <ClInclude Include="thirdparty\imgui\include\imstb_rectpack.h">
       <Filter>imgui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\GUIManager.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\Gui.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\CameraPanel.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\GuiPanel.h">
+      <Filter>Header Files\gui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

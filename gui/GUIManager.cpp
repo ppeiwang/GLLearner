@@ -1,28 +1,9 @@
-#include "ImguiManager.h"
+#include "GUIManager.h"
 #include "imgui/include/imgui.h"
 #include "imgui/include/imgui_impl_glfw.h"
 #include "imgui/include/imgui_impl_opengl3.h"
 
-
-ImguiManager* ImguiManager::m_ptr_instance_ = nullptr;
-
-ImguiManager::~ImguiManager()
-{
-	if (m_ptr_instance_)
-	{
-		delete m_ptr_instance_;
-		m_ptr_instance_ = nullptr;
-	}
-}
-
-ImguiManager& ImguiManager::GetInstance()
-{
-	if (!m_ptr_instance_) m_ptr_instance_ = new ImguiManager();
-
-	return *m_ptr_instance_;
-}
-
-void ImguiManager::Init(GLFWwindow* window)
+void GUIManager::Init(GLFWwindow* window)
 {
 	const char* glsl_version = "#version 130";
 
@@ -58,27 +39,48 @@ void ImguiManager::Init(GLFWwindow* window)
 
 }
 
-void ImguiManager::Update()
+void GUIManager::Update()
 {
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-	if (show_demo_window)
-		ImGui::ShowDemoWindow(&show_demo_window);
+	static bool show_demo_window = true;
+	//ImGui::ShowDemoWindow(&show_demo_window);
+
+	Draw();
 
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void ImguiManager::DeInit()
+
+void GUIManager::DeInit()
 {
 	// Cleanup
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 }
+
+void GUIManager::AddGuiPanel(std::shared_ptr<Gui> ptr_gui)
+{
+	m_panel_children_list_.emplace_back(ptr_gui);
+}
+
+void GUIManager::Draw()
+{
+	for (auto& wk_panel_ptr : m_panel_children_list_)
+	{
+		auto panel_ptr = wk_panel_ptr.lock();
+		if (panel_ptr)
+		{
+			panel_ptr->Draw();
+		}
+	}
+}
+
+
 

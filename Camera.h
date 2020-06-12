@@ -9,6 +9,8 @@ public:
 
 	void Update();
 
+	void Reset();
+
 	void SetTarget(const glm::vec3& target);
 
 	void SetPosition(const glm::vec3& pos);
@@ -35,6 +37,8 @@ public:
 
 	const glm::quat& GetRotation() const noexcept;
 
+	const glm::vec3& GetEuler() const noexcept;
+
 	const glm::vec3& GetUpDirection() const noexcept;
 
 	glm::vec3 GetForward() const noexcept;
@@ -58,32 +62,34 @@ private:
 	void UpdateCamera();
 
 private:
-	bool dirty_;
+	bool m_dirty_;
 	
-	bool free_camera_;
+	bool m_free_camera_;
 
-	float fov_;
+	float m_fov_;
 
-	float asp_;
+	float m_asp_;
 	
-	float zNear_;
+	float m_zNear_;
 
-	float zFar_;
+	float m_zFar_;
 
-	glm::vec3 position_;
+	glm::vec3 m_position_;
 
-	glm::vec3 target_;
+	glm::vec3 m_target_;
 
-	glm::vec3 up_direction_;
+	glm::vec3 m_up_direction_;
 
-	glm::vec3 raw_view_direction_; // the camera's default view direction
+	glm::vec3 m_raw_view_direction_; // the camera's default view direction
 
-	glm::quat rotation_;
+	glm::quat m_rotation_;
 
-	glm::mat3 rotation_matrix_;
+	glm::vec3 m_rotation_euler_;
 
-	glm::mat4 view_matrix_;
+	glm::mat3 m_rotation_matrix_;
 
-	glm::mat4 projection_matrix;
+	glm::mat4 m_view_matrix_;
+
+	glm::mat4 m_projection_matrix_;
 		
 };

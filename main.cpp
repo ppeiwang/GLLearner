@@ -12,7 +12,8 @@
 #include "Logger.h"
 #include <random>
 #include "Camera.h"
-#include "ImguiManager.h"
+#include "gui/GUIManager.h"
+#include "gui/GuiPanel.h"
 
 //#debug begin
 #include "glm/gtc/quaternion.hpp"
@@ -87,7 +88,7 @@ int main()
 		return -1;
 	}
 
-	ImguiManager::GetInstance().Init(window);
+	GUIManager::GetInstance().Init(window);
 
 	const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
 	const GLubyte* version = glGetString(GL_VERSION); // version as a string
@@ -282,7 +283,13 @@ int main()
 		arr_positon[i] /= 20.f;
 	}
 
-	Camera camera_instance_;	
+	std::shared_ptr<Camera> ptr_camera = std::make_shared<Camera>();
+	Camera& camera_instance_ = *ptr_camera;
+	
+	std::shared_ptr<CameraPanel> ptr_camera_debug_panel = std::make_shared<CameraPanel>();
+	ptr_camera_debug_panel->SetCamera(ptr_camera);
+	GUIManager::GetInstance().AddGuiPanel(ptr_camera_debug_panel);
+
 	camera_instance_.SetPerspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 1000.f);
 
 	unsigned long long frame = 0;
@@ -416,7 +423,7 @@ int main()
 
 		}
 
-		ImguiManager::GetInstance().Update();
+		GUIManager::GetInstance().Update();
 
 		glfwPollEvents();
 
@@ -440,7 +447,7 @@ int main()
 
 	}
 
-	ImguiManager::GetInstance().DeInit();
+	GUIManager::GetInstance().DeInit();
 
 	glfwTerminate();
 
