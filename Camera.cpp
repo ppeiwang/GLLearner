@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include "PMath.h"
 #include "glm/gtc/matrix_transform.hpp"
+#include "Logger.h"
 
 using glm::vec3;
 using glm::quat;
@@ -43,6 +44,8 @@ void Camera::UpdateCamera()
 	glm::vec3 direction = m_rotation_matrix_ * m_raw_view_direction_;
 	glm::vec3 new_target{ m_position_.x + direction.x, m_position_.y + direction.y, m_position_.z + direction.z };
 
+	m_target_ = new_target;
+
 	// rotate up direction
 	glm::vec3 new_up_direction = m_rotation_matrix_ * m_up_direction_ ;
 
@@ -67,19 +70,33 @@ void Camera::Reset()
 	m_up_direction_ = k_default_camera_up_dir;
 	m_raw_view_direction_ = k_default_camera_raw_view_dir;
 	m_rotation_euler_ = k_default_camera_rotation_euler;
+
+	camera_displacement = k_default_camera_position;
+	last_camera_position = k_default_camera_position;
+
 	m_dirty_ = true;
 }
 
 void Camera::SetTarget(const glm::vec3& target)
 {
-	m_target_ = m_target_;
-	m_dirty_ = true;
+	if (m_target_ != target)
+	{
+		m_target_ = target;
+		m_dirty_ = true;
+	}
 }
 
 void Camera::SetPosition(const glm::vec3& pos)
 {
-	m_position_ = pos;
-	m_dirty_ = true;
+	if (m_position_ != pos)
+	{
+		last_camera_position = pos;
+
+		camera_displacement = glm::normalize(m_position_ - last_camera_position);
+
+		m_position_ = pos;
+		m_dirty_ = true;
+	}
 }
 
 void Camera::SetUpDirection(const glm::vec3& up)
@@ -90,11 +107,14 @@ void Camera::SetUpDirection(const glm::vec3& up)
 
 void Camera::SetPerspective(float fov, float asp, float zNear, float zFar)
 {
-	m_fov_ = fov;
-	m_asp_ = asp;
-	m_zNear_ = zNear;
-	m_zFar_ = zFar;
-	m_dirty_ = true;
+	if (m_fov_ != fov || m_asp_ != asp || m_zNear_ != zNear || m_zFar_ != zFar)
+	{
+		m_fov_ = fov;
+		m_asp_ = asp;
+		m_zNear_ = zNear;
+		m_zFar_ = zFar;
+		m_dirty_ = true;
+	}
 }
 
 void Camera::Pitch(float angleRad)
@@ -131,9 +151,19 @@ void Camera::Rotate(const float angleRad, const glm::vec3& axis)
 {
 	const glm::quat rot_q = PMath::QuaternionRotate(angleRad, axis);
 	const glm::quat& current_rot_q = GetRotation();
+	const glm::quat& tmp = rot_q * current_rot_q;
 	const glm::quat rot_result = glm::normalize(rot_q*current_rot_q);
-	m_rotation_ = rot_result;
-	m_dirty_ = true;
+
+	if (rot_result != m_rotation_)
+	{
+		Logger::Info("\n");
+		Logger::Info("Camera::Rotate");
+		Logger::Info("Axis = " + Logger::ToString(axis));
+
+		last_camera_rotation = m_rotation_;
+		m_rotation_ = rot_result;
+		m_dirty_ = true;
+	}
 }
 
 float Camera::GetNear() const
@@ -173,17 +203,22 @@ const glm::vec3& Camera::GetUpDirection() const noexcept
 
 glm::vec3 Camera::GetForward() const noexcept
 {
-	return glm::vec3{ -m_view_matrix_[2] };
+	return glm::vec3{ -m_rotation_matrix_[2] };
 }
 
 glm::vec3 Camera::GetRight() const noexcept
 {
-	return glm::vec3{m_view_matrix_[0]};
+	return glm::vec3{ m_rotation_matrix_[0]};
 }
 
 glm::vec3 Camera::GetUp() const noexcept
 {
-	return glm::vec3{m_view_matrix_[1]};
+	return glm::vec3{ m_rotation_matrix_[1]};
+}
+
+const glm::mat3& Camera::GetRotationMatrix() const noexcept
+{
+	return m_rotation_matrix_;
 }
 
 const glm::mat4& Camera::GetViewMatrix() const noexcept

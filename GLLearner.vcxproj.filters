@@ -84,6 +84,9 @@
     <ClCompile Include="gui\CameraPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gui\GuiLogger.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shaderLoader.h">
@@ -141,6 +144,9 @@
       <Filter>Header Files\gui</Filter>
     </ClInclude>
     <ClInclude Include="gui\GuiPanel.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\GuiLogger.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
   </ItemGroup>

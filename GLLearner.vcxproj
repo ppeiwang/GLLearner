@@ -148,6 +148,7 @@
     <ClCompile Include="EventHandle.cpp" />
     <ClCompile Include="gui\CameraPanel.cpp" />
     <ClCompile Include="gui\Gui.cpp" />
+    <ClCompile Include="gui\GuiLogger.cpp" />
     <ClCompile Include="gui\GUIManager.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="Framework.h" />
     <ClInclude Include="gui\CameraPanel.h" />
     <ClInclude Include="gui\Gui.h" />
+    <ClInclude Include="gui\GuiLogger.h" />
     <ClInclude Include="gui\GUIManager.h" />
     <ClInclude Include="gui\GuiPanel.h" />
     <ClInclude Include="Logger.h" />

@@ -54,9 +54,17 @@ public:
 	*/
 	glm::vec3 GetUp() const noexcept;
 
+	const glm::mat3& GetRotationMatrix() const noexcept;
+
 	const glm::mat4& GetViewMatrix() const noexcept;
 
 	const glm::mat4& GetProjectMatrix() const noexcept;
+
+	glm::quat last_camera_rotation = { 1.0f, 0.f, 0.f, 0.f };
+
+	glm::vec3 last_camera_position = { 0.f, 0.f, 0.f };
+
+	glm::vec3 camera_displacement = { 0.f, 0.f, 0.f };
 
 private:
 	void UpdateCamera();
@@ -91,5 +99,5 @@ private:
 	glm::mat4 m_view_matrix_;
 
 	glm::mat4 m_projection_matrix_;
-		
+
 };

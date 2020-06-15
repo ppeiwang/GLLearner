@@ -59,6 +59,10 @@ void SetWindowTitle(GLFWwindow* window, const std::string& title, float frame_ra
 
 int main()
 {
+	auto ptr_gui_logger = std::make_shared<GuiLogger>();
+	Logger::GetInstance().SetGuiLogger(ptr_gui_logger);
+	GUIManager::GetInstance().AddGuiPanel(ptr_gui_logger);
+
 	glfwInit();
 
 	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -72,8 +76,7 @@ int main()
 	GLFWwindow* window = glfwCreateWindow(800, 600, "GLFW-Window", NULL, NULL);
 	if (window == NULL)
 	{
-
-		std::cout << "Failed to create GLFW window" << std::endl;
+		Logger::Error("Failed to create GLFW window");
 		glfwTerminate();
 		return -1;
 	}
@@ -84,7 +87,7 @@ int main()
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
+		Logger::Error("Failed to initialize GLAD");
 		return -1;
 	}
 
@@ -223,22 +226,23 @@ int main()
 	const std::string texture_wood_path{"texture/wood.jpg"};
 	const std::string texture_cartoon_path{"texture/cartoon.jpg"};
 
-	stTextureInfo textures_data[2]{};
+	stTextureInfo textures_data[3]{};
 	textures_data[0].ptrData = stbi_load(texture_wood_path.c_str(), &textures_data[0].width, &textures_data[0].height, &textures_data[0].nrChannels, 0);
 	textures_data[1].ptrData = stbi_load(texture_cartoon_path.c_str(), &textures_data[1].width, &textures_data[1].height, &textures_data[1].nrChannels, 0);
-	//textures_data[1].ptrData = stbi_load(texture_fabric_path.c_str(), &textures_data[1].width, &textures_data[1].height, &textures_data[1].nrChannels, 0);
+	textures_data[2].ptrData = stbi_load(texture_fabric_path.c_str(), &textures_data[2].width, &textures_data[2].height, &textures_data[2].nrChannels, 0);
 
-	unsigned int textures[2];
-	glGenTextures(2, textures);
-	for(size_t i = 0; i < sizeof(textures_data)/sizeof(textures_data[0]); i++)
+	constexpr size_t texture_count = sizeof(textures_data) / sizeof(textures_data[0]);
+	
+	unsigned int textures[texture_count];
+	glGenTextures(texture_count, textures);
+	for(size_t i = 0; i < texture_count; i++)
 	{	
 		glBindTexture(GL_TEXTURE_2D, textures[i]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		const auto ptr_data = textures_data[i].ptrData;
-		if (ptr_data)
+		if (textures_data[i].ptrData)
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textures_data[i].width, textures_data[i].height, 0, GL_RGB, GL_UNSIGNED_BYTE, textures_data[i].ptrData);
 			glGenerateMipmap(GL_TEXTURE_2D);
@@ -252,8 +256,8 @@ int main()
 	}
 
 	shader_interpolate.Use();
-	shader_interpolate.SetInt("texture0", 0);
-	shader_interpolate.SetInt("texture1", 1);
+	shader_interpolate.SetInt("texture0", 1);
+	shader_interpolate.SetInt("texture1", 2);
 
 	shader_uniform.Use();
 	shader_uniform.SetInt("texture0", 0);
@@ -372,6 +376,11 @@ int main()
 				up_direction * translation_increment.y +
 				forward_direction * translation_increment.z;
 
+			if (translation_increment.x != 0 || translation_increment.y != 0 || translation_increment.z != 0)
+			{
+				int debug = 0;
+			}
+
 			camera_instance_.SetPosition(camera_new_position);
 
 			camera_instance_.Pitch(rotation_increment.x);
@@ -398,6 +407,7 @@ int main()
 			glBindVertexArray(VAO[1]);
 
 			// transform
+			/*
 			for(size_t i = 0; i < Box_Count; i++)
 			{
 				glm::vec3 axis{ 0.57735f, 0.57735f, 0.57735f };
@@ -418,6 +428,33 @@ int main()
 				
 				glDrawArrays(GL_TRIANGLES, 0, 36);
 			}
+			*/
+
+			auto modelMatrix = glm::mat4{ 1 };
+			modelMatrix = glm::translate(modelMatrix, glm::vec3{0, 0, -20.f});
+			const auto& viewMatrix = camera_instance_.GetViewMatrix();
+			const auto& projMatrix = camera_instance_.GetProjectMatrix();
+
+			//auto viewMatrix = glm::translate(glm::mat4{ 1, }, glm::vec3{ 0.0f, 0.0f, -30.0f });
+			//auto projectMatrix = glm::perspective(glm::radians(30.f), 800.f / 600.f, 0.1f, 1000.f);
+			shader_uniform.SetMatrix("model", modelMatrix);
+			shader_uniform.SetMatrix("view", viewMatrix);
+			shader_uniform.SetMatrix("projection", projMatrix);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+
+			shader_interpolate.Use();
+			modelMatrix = glm::translate(glm::mat4{ 1 }, glm::vec3{ 0, 0, 20.f });
+			shader_uniform.SetMatrix("model", modelMatrix);
+			shader_uniform.SetMatrix("view", viewMatrix);
+			shader_uniform.SetMatrix("projection", projMatrix);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+
+			shader_uniform.Use();
+			modelMatrix = glm::translate(glm::mat4{ 1 }, glm::vec3{ 0, 20.0f, 0.f });
+			shader_uniform.SetMatrix("model", modelMatrix);
+			shader_uniform.SetMatrix("view", viewMatrix);
+			shader_uniform.SetMatrix("projection", projMatrix);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
 
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -431,8 +468,11 @@ int main()
 
 		// frame rate
 		{
-			std::chrono::nanoseconds time_passed = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - last);
-			std::this_thread::sleep_for(time_passed);
+			const std::chrono::nanoseconds time_passed = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - last);
+			if (time_passed < time_per_frame_nanoseconds)
+			{
+				std::this_thread::sleep_for(time_per_frame_nanoseconds - time_passed);
+			}
 
 			const std::chrono::time_point<std::chrono::high_resolution_clock> time_stamp = std::chrono::high_resolution_clock::now();
 			std::chrono::nanoseconds time_per_frame_nanosecond = time_stamp - last;
