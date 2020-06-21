@@ -43,6 +43,8 @@ struct stTextureInfo
 	unsigned char* ptrData = nullptr;
 	stTextureInfo() = default;
 };
+
+
 void SetWindowTitle(GLFWwindow* window, const std::string& title, float frame_rate)
 {
 	if (window)
@@ -55,6 +57,22 @@ void SetWindowTitle(GLFWwindow* window, const std::string& title, float frame_ra
 		glfwSetWindowTitle(window, title_concat.c_str());
 	}
 
+}
+
+void mouse_callback(GLFWwindow* /*window*/, double /*xpos*/, double /*ypos*/)
+{
+
+}
+
+static float gZoom = 45.0f;
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	gZoom -= (float)yoffset;
+	if (gZoom < 1.0f)
+		gZoom = 1.0f;
+	if (gZoom > 45.0f)
+		gZoom = 45.0f;
 }
 
 int main()
@@ -72,7 +90,6 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 
-
 	GLFWwindow* window = glfwCreateWindow(800, 600, "GLFW-Window", NULL, NULL);
 	if (window == NULL)
 	{
@@ -80,6 +97,12 @@ int main()
 		glfwTerminate();
 		return -1;
 	}
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+	glfwSetCursorPosCallback(window, mouse_callback);
+
+	glfwSetScrollCallback(window, scroll_callback);
 
 	glfwMakeContextCurrent(window);
 
@@ -201,6 +224,15 @@ int main()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
 	glEnableVertexAttribArray(2);
 
+	uint32_t light_VAO;
+	glGenVertexArrays(1, &light_VAO);
+	glBindVertexArray(light_VAO);
+	// we only need to bind to the VBO, the container's VBO's data already contains the data.
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+	// set the vertex attributes (only position data for our lamp)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
 	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex
 	// attribute's bound vertex buffer object so afterwards we can safely unbind
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -294,8 +326,6 @@ int main()
 	ptr_camera_debug_panel->SetCamera(ptr_camera);
 	GUIManager::GetInstance().AddGuiPanel(ptr_camera_debug_panel);
 
-	camera_instance_.SetPerspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 1000.f);
-
 	unsigned long long frame = 0;
 	unsigned long long ms = 0;
 
@@ -387,6 +417,8 @@ int main()
 			camera_instance_.Yaw(rotation_increment.y);
 			camera_instance_.Roll(rotation_increment.z);
 			camera_instance_.Update();
+		
+			camera_instance_.SetPerspective(glm::radians(gZoom), 800.f / 600.f, 0.1f, 1000.f);
 
 			glClearColor(color_a.x, color_a.y, color_a.z, color_a.w);
 

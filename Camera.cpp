@@ -156,10 +156,6 @@ void Camera::Rotate(const float angleRad, const glm::vec3& axis)
 
 	if (rot_result != m_rotation_)
 	{
-		Logger::Info("\n");
-		Logger::Info("Camera::Rotate");
-		Logger::Info("Axis = " + Logger::ToString(axis));
-
 		last_camera_rotation = m_rotation_;
 		m_rotation_ = rot_result;
 		m_dirty_ = true;
