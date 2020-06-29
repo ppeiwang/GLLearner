@@ -29,7 +29,7 @@ ShaderLoader::ShaderLoader(const std::string& vertex_path, const std::string& fr
 	if (!success)
 	{
 		glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-		std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		std::cerr << "{ " << vertex_path << " }" << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 	};
 
 	unsigned int fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -40,7 +40,7 @@ ShaderLoader::ShaderLoader(const std::string& vertex_path, const std::string& fr
 	if (!success)
 	{
 		glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-		std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+		std::cerr  <<"{ " << fragment_path << " }"<< "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 	};
 
 	// shader Program

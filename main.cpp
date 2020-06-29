@@ -12,6 +12,7 @@
 #include "Logger.h"
 #include <random>
 #include "Camera.h"
+#include "Scene.h"
 #include "gui/GUIManager.h"
 #include "gui/GuiPanel.h"
 
@@ -22,17 +23,14 @@
 #include "glm/gtx/euler_angles.hpp"
 //#debug end
 
-#if 1
+Scene global_scene_instance{"Simple Scene"};
+
+void processInput(GLFWwindow* window);
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
-}
-
-void processInput(GLFWwindow* window)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
 }
 
 struct stTextureInfo
@@ -50,6 +48,7 @@ void SetWindowTitle(GLFWwindow* window, const std::string& title, float frame_ra
 	if (window)
 	{
 		std::stringstream ss;
+
 		ss << std::fixed << std::setprecision(2) << frame_rate;
 		std::string title_concat{ title };
 		title_concat.append("   Frame Rate: ");
@@ -83,8 +82,6 @@ int main()
 
 	glfwInit();
 
-	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -130,52 +127,48 @@ int main()
 	int nAttriLimit;
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nAttriLimit);
 
-	ShaderLoader shader_interpolate(R"(shader/vs.glsl)", R"(shader/fs_texture.glsl)");
-	ShaderLoader shader_uniform(R"(shader/vs.glsl)", R"(shader/fs_texture.glsl)");
-
 	float vertices[] = {
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 	};
 	unsigned int indices[] = {
 		0, 1, 3, // first triangle
@@ -188,6 +181,7 @@ int main()
 	glGenBuffers(2, VBO);
 	glGenBuffers(2, EBO);
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), then configure vertex attributes(s), and at last bind element buffer.
+	
 	glBindVertexArray(VAO[0]);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
@@ -196,20 +190,22 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(float), indices, GL_STATIC_DRAW);
 
-	// glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void * pointer);
-	// @index Specifies the index of the generic vertex attribute to be modified.
-	// @size Specifies the number of components per generic vertex attribute. Must be 1, 2, 3, 4
-	// @type Specifies the data type of each component in the array
-	// @stride Specifies the byte offset between consecutive generic vertex attributes. 
-	//	If stride is 0, the generic vertex attributes are understood to be tightly packed in the array. The initial value is 0
-	// @ pointer Specifies a offset of the first component of the first generic vertex attribute in the array 
-	//	in the data store of the buffer currently bound to the GL_ARRAY_BUFFER target
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	/************************************************************************
+	 glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void * pointer);
+
+	 @index Specifies the index of the generic vertex attribute to be modified.
+	 @size Specifies the number of components per generic vertex attribute. Must be 1, 2, 3, 4
+	 @type Specifies the data type of each component in the array
+	 @stride Specifies the byte offset between consecutive generic vertex attributes. 
+		If stride is 0, the generic vertex attributes are understood to be tightly packed in the array. The initial value is 0
+	 @ pointer Specifies a offset of the first component of the first generic vertex attribute in the array 
+		in the data store of the buffer currently bound to the GL_ARRAY_BUFFER target
+	*/
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));
-	//glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
+	glEnableVertexAttribArray(1);
+	
 
 	glBindVertexArray(VAO[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
@@ -217,12 +213,14 @@ int main()
 
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[1]);
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(float), indices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
+	glEnableVertexAttribArray(1);
 	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));
 	//glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
-	glEnableVertexAttribArray(2);
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
+	//glEnableVertexAttribArray(2);
 
 	uint32_t light_VAO;
 	glGenVertexArrays(1, &light_VAO);
@@ -230,7 +228,7 @@ int main()
 	// we only need to bind to the VBO, the container's VBO's data already contains the data.
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
 	// set the vertex attributes (only position data for our lamp)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex
@@ -287,13 +285,13 @@ int main()
 		}
 	}
 
-	shader_interpolate.Use();
-	shader_interpolate.SetInt("texture0", 1);
-	shader_interpolate.SetInt("texture1", 2);
+	ShaderLoader shader_cube_on_light{ R"(shader/vs_raw.glsl)", R"(shader/fs_cube_on_light.glsl)" };
+	ShaderLoader shader_light{ R"(shader/vs_raw.glsl)", R"(shader/fs_light.glsl)" };
+	//ShaderLoader shader_interpolate(R"(shader/vs.glsl)", R"(shader/fs_texture.glsl)");
 
-	shader_uniform.Use();
-	shader_uniform.SetInt("texture0", 0);
-	shader_uniform.SetInt("texture1", 1);
+	//shader_interpolate.Use();
+	//shader_interpolate.SetInt("texture0", 1);
+	//shader_interpolate.SetInt("texture1", 2);
 	
 	glm::vec4 color_a{ 1.0f, 1.0f, 0.0f, 1.0f };
 
@@ -319,7 +317,11 @@ int main()
 		arr_positon[i] /= 20.f;
 	}
 
-	std::shared_ptr<Camera> ptr_camera = std::make_shared<Camera>();
+	global_scene_instance.CreateCamera();
+
+	global_scene_instance.SetLightPosition({ 1.2f, 1.0f, 2.0f });
+
+	std::shared_ptr<Camera> ptr_camera = global_scene_instance.GetCamera();
 	Camera& camera_instance_ = *ptr_camera;
 	
 	std::shared_ptr<CameraPanel> ptr_camera_debug_panel = std::make_shared<CameraPanel>();
@@ -343,84 +345,8 @@ int main()
 
 		// rendering
 		{
-			glm::vec3 translation_increment { 0 };
-			glm::vec3 rotation_increment{ 0 };
-
-			const float translation_delta = 0.5f;
-			const float rotation_delta = 0.02f;
-			// left
-			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			{
-				translation_increment.x -= translation_delta;
-			}
-
-			// right
-			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			{
-				translation_increment.x += translation_delta;
-			}
-
-			// forward
-			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			{
-				translation_increment.z = translation_delta;
-			}
-
-			// backward
-			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			{
-				translation_increment.z -= translation_delta;
-			}
-
-			if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-			{
-				// x+
-				rotation_increment.x += rotation_delta;
-			}
-
-			if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-			{
-				// x-
-				rotation_increment.x -= rotation_delta;
-			}
-
-			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-			{
-				// y+
-				rotation_increment.y += rotation_delta;
-			}
-
-			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-			{
-				// y-
-				rotation_increment.y -= rotation_delta;
-			}
-
-			const auto right_direction =  camera_instance_.GetRight();
-			const auto up_direction = camera_instance_.GetUp();
-			const auto forward_direction = camera_instance_.GetForward();
-
-			const auto camera_current_position = camera_instance_.GetPosition();
-			const auto camera_new_position = (camera_current_position)+
-				right_direction * translation_increment.x +
-				up_direction * translation_increment.y +
-				forward_direction * translation_increment.z;
-
-			if (translation_increment.x != 0 || translation_increment.y != 0 || translation_increment.z != 0)
-			{
-				int debug = 0;
-			}
-
-			camera_instance_.SetPosition(camera_new_position);
-
-			camera_instance_.Pitch(rotation_increment.x);
-			camera_instance_.Yaw(rotation_increment.y);
-			camera_instance_.Roll(rotation_increment.z);
-			camera_instance_.Update();
-		
-			camera_instance_.SetPerspective(glm::radians(gZoom), 800.f / 600.f, 0.1f, 1000.f);
-
-			glClearColor(color_a.x, color_a.y, color_a.z, color_a.w);
+			//glClearColor(color_a.x, color_a.y, color_a.z, color_a.w);
+			glClearColor(0.15f, 0.15f, 0.18f, 1.0f);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -431,65 +357,44 @@ int main()
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, textures[1]);
 
-			float timeValue = glfwGetTime();
-			const float normalized_value = (sin(timeValue) / 2.0f) + 0.5f;
-			shader_uniform.Use();
-			shader_uniform.SetFloatVec("ourColor", glm::vec4{normalized_value, 0.0f, 0.0f, 1.0f});
-
-			glBindVertexArray(VAO[1]);
-
-			// transform
-			/*
-			for(size_t i = 0; i < Box_Count; i++)
 			{
-				glm::vec3 axis{ 0.57735f, 0.57735f, 0.57735f };
-				const float Sin = sin(20.0f * i);
-				glm::quat q{ cos(20.0f * i * 0.5f), axis.x * Sin, axis.y * Sin, axis.z * Sin };
-				q = glm::normalize(q);
+				shader_cube_on_light.Use();
+				shader_cube_on_light.SetFloatVec("objectColor", { 1.0f, 0.5f, 0.31f });
+				shader_cube_on_light.SetFloatVec("lightColor", { 1.0f, 1.0f, 1.0f });
+				shader_cube_on_light.SetFloatVec("lightPos", global_scene_instance.GetLightPosition());
+
 				auto modelMatrix = glm::mat4{ 1 };
-				const glm::vec3& position = arr_positon[i];
-				modelMatrix = glm::translate(modelMatrix, position);
+				modelMatrix = glm::translate(modelMatrix, glm::vec3{ 0, 0, -5.f });
 				const auto& viewMatrix = camera_instance_.GetViewMatrix();
 				const auto& projMatrix = camera_instance_.GetProjectMatrix();
 
-				//auto viewMatrix = glm::translate(glm::mat4{ 1, }, glm::vec3{ 0.0f, 0.0f, -30.0f });
-				//auto projectMatrix = glm::perspective(glm::radians(30.f), 800.f / 600.f, 0.1f, 1000.f);
-				shader_uniform.SetMatrix("model", modelMatrix);
-				shader_uniform.SetMatrix("view", viewMatrix);
-				shader_uniform.SetMatrix("projection", projMatrix);
-				
+				shader_cube_on_light.SetMatrix("model", modelMatrix);
+				shader_cube_on_light.SetMatrix("view", viewMatrix);
+				shader_cube_on_light.SetMatrix("projection", projMatrix);
+			
+				glBindVertexArray(VAO[1]);
 				glDrawArrays(GL_TRIANGLES, 0, 36);
 			}
-			*/
 
-			auto modelMatrix = glm::mat4{ 1 };
-			modelMatrix = glm::translate(modelMatrix, glm::vec3{0, 0, -20.f});
-			const auto& viewMatrix = camera_instance_.GetViewMatrix();
-			const auto& projMatrix = camera_instance_.GetProjectMatrix();
+			{
+				shader_light.Use();
+				auto modelMatrix = glm::mat4{ 1 };
 
-			//auto viewMatrix = glm::translate(glm::mat4{ 1, }, glm::vec3{ 0.0f, 0.0f, -30.0f });
-			//auto projectMatrix = glm::perspective(glm::radians(30.f), 800.f / 600.f, 0.1f, 1000.f);
-			shader_uniform.SetMatrix("model", modelMatrix);
-			shader_uniform.SetMatrix("view", viewMatrix);
-			shader_uniform.SetMatrix("projection", projMatrix);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
+				modelMatrix = glm::translate(modelMatrix, global_scene_instance.GetLightPosition());
+				modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f));
+				const auto& viewMatrix = camera_instance_.GetViewMatrix();
+				const auto& projMatrix = camera_instance_.GetProjectMatrix();
 
-			shader_interpolate.Use();
-			modelMatrix = glm::translate(glm::mat4{ 1 }, glm::vec3{ 0, 0, 20.f });
-			shader_uniform.SetMatrix("model", modelMatrix);
-			shader_uniform.SetMatrix("view", viewMatrix);
-			shader_uniform.SetMatrix("projection", projMatrix);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
+				shader_light.SetMatrix("model", modelMatrix);
+				shader_light.SetMatrix("view", viewMatrix);
+				shader_light.SetMatrix("projection", projMatrix);
 
-			shader_uniform.Use();
-			modelMatrix = glm::translate(glm::mat4{ 1 }, glm::vec3{ 0, 20.0f, 0.f });
-			shader_uniform.SetMatrix("model", modelMatrix);
-			shader_uniform.SetMatrix("view", viewMatrix);
-			shader_uniform.SetMatrix("projection", projMatrix);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
+				glBindVertexArray(light_VAO);
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+			}
 
+		
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
 		}
 
 		GUIManager::GetInstance().Update();
@@ -526,4 +431,83 @@ int main()
 	return 0;
 }
 
-#endif
+void processInput(GLFWwindow* window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+
+	glm::vec3 translation_increment{ 0 };
+	glm::vec3 rotation_increment{ 0 };
+
+	const float translation_delta = 0.5f;
+	const float rotation_delta = 0.02f;
+	// left
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		translation_increment.x -= translation_delta;
+	}
+
+	// right
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		translation_increment.x += translation_delta;
+	}
+
+	// forward
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		translation_increment.z = translation_delta;
+	}
+
+	// backward
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		translation_increment.z -= translation_delta;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		// x+
+		rotation_increment.x += rotation_delta;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		// x-
+		rotation_increment.x -= rotation_delta;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		// y+
+		rotation_increment.y += rotation_delta;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		// y-
+		rotation_increment.y -= rotation_delta;
+	}
+
+	auto ptr_camera =  global_scene_instance.GetCamera();
+	auto& camera_instance_ = *ptr_camera;
+
+	const auto right_direction = camera_instance_.GetRight();
+	const auto up_direction = camera_instance_.GetUp();
+	const auto forward_direction = camera_instance_.GetForward();
+
+	const auto camera_current_position = camera_instance_.GetPosition();
+	const auto camera_new_position = (camera_current_position)+
+		right_direction * translation_increment.x +
+		up_direction * translation_increment.y +
+		forward_direction * translation_increment.z;
+
+	camera_instance_.SetPosition(camera_new_position);
+
+	camera_instance_.Pitch(rotation_increment.x);
+	camera_instance_.Yaw(rotation_increment.y);
+	camera_instance_.Roll(rotation_increment.z);
+	camera_instance_.Update();
+
+	camera_instance_.SetPerspective(glm::radians(gZoom), 800.f / 600.f, 0.1f, 1000.f);
+}

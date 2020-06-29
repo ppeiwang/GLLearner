@@ -153,6 +153,7 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PMath.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="shaderLoader.cpp" />
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="thirdparty\glad\src\glad.c" />
@@ -174,6 +175,7 @@
     <ClInclude Include="gui\GuiPanel.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="PMath.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="shaderLoader.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="thirdparty\imgui\include\imconfig.h" />
