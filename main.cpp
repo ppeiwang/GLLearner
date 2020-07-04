@@ -343,6 +343,8 @@ int main()
 
 		processInput(window);
 
+		Clock
+
 		// rendering
 		{
 			//glClearColor(color_a.x, color_a.y, color_a.z, color_a.w);
@@ -362,6 +364,7 @@ int main()
 				shader_cube_on_light.SetFloatVec("objectColor", { 1.0f, 0.5f, 0.31f });
 				shader_cube_on_light.SetFloatVec("lightColor", { 1.0f, 1.0f, 1.0f });
 				shader_cube_on_light.SetFloatVec("lightPos", global_scene_instance.GetLightPosition());
+				shader_cube_on_light.SetFloatVec("viewPos", camera_instance_.GetPosition());
 
 				auto modelMatrix = glm::mat4{ 1 };
 				modelMatrix = glm::translate(modelMatrix, glm::vec3{ 0, 0, -5.f });
