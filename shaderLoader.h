@@ -21,6 +21,10 @@ public:
 
 	void SetFloatVec(const std::string& name, const glm::vec4& vec) const;
 
+	void SetFloatVec(const std::string& name, float f0, float f1, float f2) const;
+
+	void SetFloatVec(const std::string& name, float f0, float f1, float f2, float f3) const;
+
 	void SetMatrix(const std::string& name, const glm::mat4& mat) const;
 
 	static std::string Read(const std::string& file_path);

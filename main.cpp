@@ -343,8 +343,6 @@ int main()
 
 		processInput(window);
 
-		Clock
-
 		// rendering
 		{
 			//glClearColor(color_a.x, color_a.y, color_a.z, color_a.w);
@@ -359,15 +357,41 @@ int main()
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, textures[1]);
 
+			auto modelMatrix = glm::mat4{ 1 };
+			modelMatrix = glm::translate(modelMatrix, glm::vec3{ 0, 0, -5.f });
+
+			// update light
+			{
+				const auto cube_pos = modelMatrix * glm::vec4{0.f,0.f,0.f, 1.f};
+				float cur_time = glfwGetTime();
+				const float radius = 3.0f;
+				float light_x = cube_pos.x + glm::cos(cur_time) * radius;
+				float light_y = cube_pos.y;
+				float light_z = cube_pos.z + glm::sin(cur_time) * radius;
+
+				global_scene_instance.SetLightPosition(light_x, light_y, light_z);
+			}
+
+			glm::vec3 lightColor;
+			lightColor.x = glm::abs(sin(glfwGetTime() * 2.0f));
+			lightColor.y = glm::abs(sin(glfwGetTime() * 0.7f));
+			lightColor.z = glm::abs(sin(glfwGetTime() * 1.3f));
+
 			{
 				shader_cube_on_light.Use();
 				shader_cube_on_light.SetFloatVec("objectColor", { 1.0f, 0.5f, 0.31f });
-				shader_cube_on_light.SetFloatVec("lightColor", { 1.0f, 1.0f, 1.0f });
-				shader_cube_on_light.SetFloatVec("lightPos", global_scene_instance.GetLightPosition());
 				shader_cube_on_light.SetFloatVec("viewPos", camera_instance_.GetPosition());
 
-				auto modelMatrix = glm::mat4{ 1 };
-				modelMatrix = glm::translate(modelMatrix, glm::vec3{ 0, 0, -5.f });
+				shader_cube_on_light.SetFloatVec("light.ambient", lightColor* glm::vec3{ 0.5f } *glm::vec3{0.2f});
+				shader_cube_on_light.SetFloatVec("light.diffuse", lightColor* glm::vec3{ 0.5f }); // darken diffuse light a bit
+				shader_cube_on_light.SetFloatVec("light.specular", 1.0f, 1.0f, 1.0f);
+				shader_cube_on_light.SetFloatVec("light.position", global_scene_instance.GetLightPosition());
+
+				shader_cube_on_light.SetFloatVec("material.ambient", 1.0f, 0.5f, 0.31f);
+				shader_cube_on_light.SetFloatVec("material.diffuse", 1.0f, 0.5f, 0.31f);
+				shader_cube_on_light.SetFloatVec("material.specular", 0.5f, 0.5f, 0.5f);
+				shader_cube_on_light.SetFloat("material.shininess", 32.0f);
+
 				const auto& viewMatrix = camera_instance_.GetViewMatrix();
 				const auto& projMatrix = camera_instance_.GetProjectMatrix();
 
@@ -377,7 +401,7 @@ int main()
 			
 				glBindVertexArray(VAO[1]);
 				glDrawArrays(GL_TRIANGLES, 0, 36);
-			}
+			}	
 
 			{
 				shader_light.Use();
@@ -388,6 +412,7 @@ int main()
 				const auto& viewMatrix = camera_instance_.GetViewMatrix();
 				const auto& projMatrix = camera_instance_.GetProjectMatrix();
 
+				shader_light.SetFloatVec("uFragColor", lightColor.x, lightColor.y, lightColor.z, 1.0f);
 				shader_light.SetMatrix("model", modelMatrix);
 				shader_light.SetMatrix("view", viewMatrix);
 				shader_light.SetMatrix("projection", projMatrix);

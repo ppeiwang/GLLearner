@@ -23,6 +23,11 @@ void Scene::SetLightPosition(const glm::vec3& pos)
 	m_vec3_light_pos_ = pos;
 }
 
+void Scene::SetLightPosition(float x, float y, float z)
+{
+	SetLightPosition({x, y, z});
+}
+
 const glm::vec3& Scene::GetLightPosition() const
 {
 	return m_vec3_light_pos_;

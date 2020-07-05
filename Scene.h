@@ -13,6 +13,8 @@ public:
 
 	std::shared_ptr<Camera> GetCamera();
 
+	void SetLightPosition(float x, float y, float z);
+	
 	void SetLightPosition(const glm::vec3& pos);
 
 	const glm::vec3& GetLightPosition() const;
