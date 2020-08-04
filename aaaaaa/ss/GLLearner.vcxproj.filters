@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Resource Files\Shader">
+      <UniqueIdentifier>{0cacd279-5460-496b-92a5-c42592dec0a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{64cb93a0-c6f0-4ce8-8f31-1f5d06a8ab6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui\include">
+      <UniqueIdentifier>{f011ffda-85fa-41b3-a3af-23f9554e3759}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui\src">
+      <UniqueIdentifier>{bc569e2e-80c3-4dfa-9e29-be951e36351f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui">
+      <UniqueIdentifier>{855b05e3-cc71-438e-a7a8-9ed394d812ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui">
+      <UniqueIdentifier>{f34054b9-9882-438b-943a-82f9ca10ad27}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\glad\src\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shaderLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stb_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PMath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EventHandle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui_impl_glfw.cpp">
+      <Filter>imgui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui_impl_opengl3.cpp">
+      <Filter>imgui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui_widgets.cpp">
+      <Filter>imgui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui.cpp">
+      <Filter>imgui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui_demo.cpp">
+      <Filter>imgui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui_draw.cpp">
+      <Filter>imgui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\GUIManager.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\Gui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\CameraPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\GuiLogger.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shaderLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EventHandle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\imgui\include\imgui_impl_opengl3.h">
+      <Filter>imgui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\imgui\include\imgui_internal.h">
+      <Filter>imgui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\imgui\include\imgui.h">
+      <Filter>imgui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\imgui\include\imgui_impl_glfw.h">
+      <Filter>imgui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\imgui\include\imconfig.h">
+      <Filter>imgui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\imgui\include\imstb_textedit.h">
+      <Filter>imgui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\imgui\include\imstb_truetype.h">
+      <Filter>imgui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\imgui\include\imstb_rectpack.h">
+      <Filter>imgui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\GUIManager.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\Gui.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\CameraPanel.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\GuiPanel.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\GuiLogger.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\fs_texture.glsl">
+      <Filter>Resource Files\Shader</Filter>
+    </None>
+    <None Include="shader\fs1.glsl">
+      <Filter>Resource Files\Shader</Filter>
+    </None>
+    <None Include="shader\vs.glsl">
+      <Filter>Resource Files\Shader</Filter>
+    </None>
+    <None Include="shader\fs.glsl">
+      <Filter>Resource Files\Shader</Filter>
+    </None>
+  </ItemGroup>
+</Project>

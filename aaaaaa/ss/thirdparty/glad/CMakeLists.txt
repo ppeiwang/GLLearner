@@ -1,0 +1,3 @@
+project(glad)
+
+INCLUDE_THIRD_PARTY(INTERFACE)
