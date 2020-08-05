@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Pei\Projects\Privates\GLLearner\aaaaaa\cmake example\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Pei\Projects\Privates\GLLearner\aaaaaa\cmake example\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{49A98959-16D4-362E-A26D-1A26F83ACD9B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
