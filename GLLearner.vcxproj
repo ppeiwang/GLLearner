@@ -156,6 +156,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="shaderLoader.cpp" />
     <ClCompile Include="stb_image.cpp" />
+    <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="thirdparty\glad\src\glad.c" />
     <ClCompile Include="thirdparty\imgui\src\imgui.cpp" />
     <ClCompile Include="thirdparty\imgui\src\imgui_demo.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="shaderLoader.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="thirdparty\imgui\include\imconfig.h" />
     <ClInclude Include="thirdparty\imgui\include\imgui.h" />
     <ClInclude Include="thirdparty\imgui\include\imgui_impl_glfw.h" />
