@@ -78,22 +78,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main()
 {
-	auto q = glm::quat{0.731f, 0.4656f, 0.0f, 0.0f };
-
-	float x, y, z;
-	glm::extractEulerAngleXYZ(glm::mat4{q}, x, y, z);
-	q = glm::quat{ -0.731f, 0.4656f, 0.0f, 0.0f };	
-	float x1, y1, z1;
-
-	glm::extractEulerAngleXYZ(glm::mat4{ q }, x1, y1, z1);
-
-
-	auto m0 = glm::eulerAngleXYZ(0.f, glm::pi<float>(), 0.f);
-	auto m1 = glm::eulerAngleXYZ(50.f / 180.f, 30.f / 180.f, 0.f);
-	auto m2 = m1 * m0;
-	glm::extractEulerAngleXYZ(m2, x, y, z);
-
-
 	auto ptr_gui_logger = std::make_shared<GuiLogger>();
 	Logger::GetInstance().SetGuiLogger(ptr_gui_logger);
 	GUIManager::GetInstance().AddGuiPanel(ptr_gui_logger);
