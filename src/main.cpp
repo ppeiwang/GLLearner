@@ -372,6 +372,10 @@ int main()
 				shader_cube_on_light.SetFloatVec("light.specular", 1.0f, 1.0f, 1.0f);
 				shader_cube_on_light.SetFloatVec("light.position", global_scene_instance.GetLightPosition());
 
+				shader_cube_on_light.SetFloat("light.constant", 1.0f);
+				shader_cube_on_light.SetFloat("light.linear", 0.07f);
+				shader_cube_on_light.SetFloat("light.quadratic", 0.017f);
+
 				shader_cube_on_light.SetFloat("material.shininess", 32.0f);
 
 				const auto& viewMatrix = camera_instance_.GetViewMatrix();
