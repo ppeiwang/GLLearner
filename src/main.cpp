@@ -227,7 +227,7 @@ int main()
 	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
 	//glEnableVertexAttribArray(2);
 
-	uint32_t light_VAO;
+	uint32_t light_VAO; // ligth cube
 	glGenVertexArrays(1, &light_VAO);
 	glBindVertexArray(light_VAO);
 	// we only need to bind to the VBO, the container's VBO's data already contains the data.
@@ -313,6 +313,12 @@ int main()
 
 	std::chrono::high_resolution_clock::time_point last = std::chrono::high_resolution_clock::now();
 
+	std::vector<glm::vec3> vec_rand_pos;
+	for (int i = 0; i < 1024; i++)
+	{
+		vec_rand_pos.push_back(fRand(0, 10));
+	}
+
 	while (!glfwWindowShouldClose(window))
 	{	
 		++frame;
@@ -348,7 +354,8 @@ int main()
 			//	global_scene_instance.SetLightPosition(light_x, light_y, light_z);
 			}
 
-			glm::vec3 lightColor{1.f, 1.f, 1.f};
+			glm::vec3 lightColor{ 1.f, 1.f, 1.f };
+			glm::vec3 lightDirection{ 0.f, 0.f, 1.f };
 			//lightColor.x = glm::abs(sin(glfwGetTime() * 2.0f));
 			//lightColor.y = glm::abs(sin(glfwGetTime() * 0.7f));
 			//lightColor.z = glm::abs(sin(glfwGetTime() * 1.3f));
@@ -359,7 +366,8 @@ int main()
 				shader_cube_on_light.SetFloatVec("objectColor", { 1.0f, 0.5f, 0.31f });
 				shader_cube_on_light.SetFloatVec("viewPos", camera_instance_.GetPosition());
 
-				shader_cube_on_light.SetFloatVec("light.ambient", lightColor* glm::vec3{ 0.5f } *glm::vec3{0.2f});
+				shader_cube_on_light.SetFloatVec("light.direction", lightDirection);
+				shader_cube_on_light.SetFloatVec("light.ambient", lightColor * glm::vec3{ 0.5f } *glm::vec3{ 0.2f });
 				shader_cube_on_light.SetFloatVec("light.diffuse", lightColor* glm::vec3{ 0.5f }); // darken diffuse light a bit
 				shader_cube_on_light.SetFloatVec("light.specular", 1.0f, 1.0f, 1.0f);
 				shader_cube_on_light.SetFloatVec("light.position", global_scene_instance.GetLightPosition());
@@ -369,12 +377,23 @@ int main()
 				const auto& viewMatrix = camera_instance_.GetViewMatrix();
 				const auto& projMatrix = camera_instance_.GetProjectMatrix();
 
-				shader_cube_on_light.SetMatrix("model", modelMatrix);
+				//shader_cube_on_light.SetMatrix("model", modelMatrix);
 				shader_cube_on_light.SetMatrix("view", viewMatrix);
 				shader_cube_on_light.SetMatrix("projection", projMatrix);
 			
 				glBindVertexArray(VAO[1]);
-				glDrawArrays(GL_TRIANGLES, 0, 36);
+				for (int cube_index = 0; cube_index < 18; cube_index++)
+				{
+					auto pos = vec_rand_pos[cube_index];
+					float angle = 20.0f * cube_index;
+					modelMatrix = glm::translate(glm::identity<glm::mat4>(), pos);
+
+					modelMatrix = glm::rotate(modelMatrix, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
+					shader_cube_on_light.SetMatrix("model", modelMatrix);
+					glDrawArrays(GL_TRIANGLES, 0, 36);
+				}
+
 			}	
 
 			{
