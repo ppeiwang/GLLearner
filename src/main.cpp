@@ -16,6 +16,7 @@
 #include "scene/Scene.h"
 #include "gui/GUIManager.h"
 #include "gui/GuiPanel.h"
+#include "light/BasicLight.h"
 
 //#debug begin
 #include "glm/gtc/quaternion.hpp"
@@ -366,15 +367,18 @@ int main()
 				shader_cube_on_light.SetFloatVec("objectColor", { 1.0f, 0.5f, 0.31f });
 				shader_cube_on_light.SetFloatVec("viewPos", camera_instance_.GetPosition());
 
-				shader_cube_on_light.SetFloatVec("light.direction", lightDirection);
-				shader_cube_on_light.SetFloatVec("light.ambient", lightColor * glm::vec3{ 0.5f } *glm::vec3{ 0.2f });
-				shader_cube_on_light.SetFloatVec("light.diffuse", lightColor* glm::vec3{ 0.5f }); // darken diffuse light a bit
-				shader_cube_on_light.SetFloatVec("light.specular", 1.0f, 1.0f, 1.0f);
-				shader_cube_on_light.SetFloatVec("light.position", global_scene_instance.GetLightPosition());
+				shader_cube_on_light.SetInt("light_type", static_cast<int>(Light::LigthType::SpotLight));
+				shader_cube_on_light.SetFloatVec("spot_light.direction", camera_instance_.GetForward());
+				shader_cube_on_light.SetFloatVec("spot_light.ambient", lightColor * glm::vec3{ 0.5f } *glm::vec3{ 0.2f });
+				shader_cube_on_light.SetFloatVec("spot_light.diffuse", lightColor* glm::vec3{ 0.5f }); // darken diffuse light a bit
+				shader_cube_on_light.SetFloatVec("spot_light.specular", 1.0f, 1.0f, 1.0f);
+				shader_cube_on_light.SetFloatVec("spot_light.position", camera_instance_.GetPosition());
+				//shader_cube_on_light.SetFloatVec("spot_light.position", global_scene_instance.GetLightPosition());
 
-				shader_cube_on_light.SetFloat("light.constant", 1.0f);
-				shader_cube_on_light.SetFloat("light.linear", 0.07f);
-				shader_cube_on_light.SetFloat("light.quadratic", 0.017f);
+				shader_cube_on_light.SetFloat("spot_light.cutOff", glm::cos(glm::radians(12.5f)));
+				shader_cube_on_light.SetFloat("point_light.constant", 1.0f);
+				shader_cube_on_light.SetFloat("point_light.linear", 0.07f);
+				shader_cube_on_light.SetFloat("point_light.quadratic", 0.017f);
 
 				shader_cube_on_light.SetFloat("material.shininess", 32.0f);
 
