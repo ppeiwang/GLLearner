@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include "glm/glm.hpp"
+#include "Config.h"
+#include "light/light.h"
 
 class ShaderLoader
 {
@@ -27,9 +29,28 @@ public:
 
 	void SetMatrix(const std::string& name, const glm::mat4& mat) const;
 
+	void GetBool(const std::string& name, bool& value) const;
+
+	void GetInt(const std::string& name, int& value) const;
+
+	void GetFloat(const std::string& name, float& value) const;
+
+	bool AddDirectionLight(const Light::DirectionLight& d_light);
+
+	bool AddPointLight(const Light::PointLight& p_light);
+
+	bool AddSpotLight(const Light::SpotLight& s_light);
+
 	static std::string Read(const std::string& file_path);
 
 public:
 	// the program ID
 	unsigned int ID_;
+
+	unsigned int direction_light_count{ 0 };
+
+	unsigned int point_light_count{ 0 };
+
+	unsigned int spot_light_count{ 0 };
+
 };

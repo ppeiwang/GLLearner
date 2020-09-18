@@ -1,6 +1,12 @@
+@REM Generating VS 2019 solution
+@echo off
+@pushd %~dp0
 cd ..
-if exist build == FALSE
+if exist "build" (
+	echo "skip create build folder"
+) else (
 	md build
+)
 
 cd build && cmake -G"Visual Studio 16" ..
 
@@ -18,4 +24,6 @@ start openGL_show_case.sln
 @pause
 
 :SUCC
+@popd
 @timeout /T 2
+

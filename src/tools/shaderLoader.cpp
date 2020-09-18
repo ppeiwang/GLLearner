@@ -83,12 +83,12 @@ void ShaderLoader::SetFloat(const std::string& name, float value) const
 
 void ShaderLoader::SetFloatVec(const std::string& name, const glm::vec3& vec) const
 {
-	glUniform3f(glGetUniformLocation(ID_, name.c_str()), vec.x, vec.y, vec.z);
+	SetFloatVec(name, vec.x, vec.y, vec.z);
 }
 
 void ShaderLoader::SetFloatVec(const std::string& name, const glm::vec4& vec) const
 {
-	glUniform4f(glGetUniformLocation(ID_, name.c_str()), vec.x, vec.y, vec.z, vec.w);
+	SetFloatVec(name, vec.x, vec.y, vec.z, vec.w);
 }
 
 void ShaderLoader::SetFloatVec(const std::string& name, float f0, float f1, float f2) const
@@ -104,6 +104,23 @@ void ShaderLoader::SetFloatVec(const std::string& name, float f0, float f1, floa
 void ShaderLoader::SetMatrix(const std::string& name, const glm::mat4& mat) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(ID_, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+void ShaderLoader::GetBool(const std::string& name, bool& value) const
+{
+	int rtnv = 0;
+	glGetUniformiv(ID_, glGetUniformLocation(ID_, name.c_str()), &rtnv);
+	value = (bool)rtnv;
+}
+
+void ShaderLoader::GetInt(const std::string& name, int& value) const
+{
+	glGetUniformiv(ID_, glGetUniformLocation(ID_, name.c_str()), &value);
+}
+
+void ShaderLoader::GetFloat(const std::string& name, float& value) const
+{
+	glGetUniformfv(ID_, glGetUniformLocation(ID_, name.c_str()), &value);
 }
 
 std::string ShaderLoader::Read(const std::string& file_path)
@@ -129,5 +146,36 @@ std::string ShaderLoader::Read(const std::string& file_path)
 	}
 
 	return ss.str();
+}
+
+bool ShaderLoader::AddDirectionLight(const Light::DirectionLight& d_light)
+{
+	if (direction_light_count < k_direction_light_limit)
+	{
+		direction_light_count++;
+
+		const std::string str_direction_light = "direction_light";
+		const std::string variable_prefix = str_direction_light + "[" + std::to_string(direction_light_count) + "]";
+		const std::string variable_ambient = variable_prefix + ".ambient";
+
+		SetFloatVec("direction_light.ambient", d_light.GetAmbient());
+		SetFloatVec("direction_light.diffuse", d_light.GetDiffuse());
+		SetFloatVec("direction_light.specular", d_light.GetSpecular());
+		SetFloatVec("direction_light.direction", d_light.GetDirection());
+		return true;
+	}
+
+	assert(false);
+	return false;
+}
+
+bool ShaderLoader::AddPointLight(const Light::PointLight& p_light)
+{
+
+}
+
+bool ShaderLoader::AddSpotLight(const Light::SpotLight& s_light)
+{
+
 }
 

@@ -34,9 +34,93 @@ namespace Light
 		return m_specular_;
 	}
 
-	void BasicLight::SetLight(ShaderLoader& shader)
+	void DirectionLight::SetDirection(const vec3& v3)
 	{
+		m_direction_ = v3;
+	}
+
+	const vec3& DirectionLight::GetDirection() const
+	{
+		return m_direction_;
+	}
+
+	void DirectionLight::SetLight(ShaderLoader& shader, uint32_t /*index = 0*/)
+	{
+		shader.SetFloatVec("direction_light.ambient", m_ambient_);
+		shader.SetFloatVec("direction_light.diffuse", m_diffuse_);
+		shader.SetFloatVec("direction_light.specular", m_specular_);
+
+		shader.SetFloatVec("direction_light.direction", m_direction_);
+	}
+
+	void PointLight::SetLight(ShaderLoader& shader, uint32_t index /* = 0*/)
+	{
+		shader.SetFloatVec("point_light.ambient", m_ambient_);
+		shader.SetFloatVec("point_light.diffuse", m_diffuse_);
+		shader.SetFloatVec("point_light.specular", m_specular_);
+
+		shader.SetFloatVec("direction_light.direction", m_direction_);
 		
+	}
+
+	void PointLight::SetPosition(const vec3& pos)
+	{
+		m_position_ = pos;
+	}
+
+	const vec3& PointLight::GetPosition() const
+	{
+		return m_position_;
+	}
+
+	float PointLight::GetConstant() const
+	{
+		return m_constant_;
+	}
+
+	void PointLight::SetConstant(float v)
+	{
+		m_constant_ = v;
+	}
+
+	float PointLight::GetLinear() const
+	{
+		return m_linear_;
+	}
+
+	void PointLight::SetLinear(float v)
+	{
+		m_linear_ = v;
+	}
+
+	float PointLight::GetQuadratic() const
+	{
+		return m_quadratic_;
+	}
+
+	void PointLight::SetQuadratic(float v)
+	{
+		m_quadratic_ = v;
+	}
+
+	void SpotLight::SetDirection(const vec3& v3)
+	{
+		m_direction_ = v3;
+	}
+
+	void SpotLight::SetPosition(const vec3& v3)
+	{
+		m_position_ = v3;
+	}
+
+	const vec3& SpotLight::GetDirection() const
+	{
+		return m_direction_;
+	}
+
+	const vec3& SpotLight::GetPosition() const
+	{
+		return m_position_;
 	}
 }
 

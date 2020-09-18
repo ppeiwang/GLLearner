@@ -12,7 +12,6 @@ namespace Light
 		SpotLight = 3
 	};
 
-
 	class BasicLight
 	{
 	protected:
@@ -33,9 +32,7 @@ namespace Light
 
 		const vec3& GetDiffuse() const;
 
-		const vec3& GetSpecular() const ;
-
-		virtual void SetLight(ShaderLoader& shader);
+		const vec3& GetSpecular() const;
 
 	protected:
 		vec3 m_ambient_;
@@ -54,11 +51,8 @@ namespace Light
 
 		const vec3& GetDirection() const;
 
-		void SetLight(ShaderLoader& shader) override;
-
 	private:
 		vec3 m_direction_;
-
 	};
 
 	class PointLight final : public BasicLight
@@ -68,7 +62,21 @@ namespace Light
 
 		~PointLight() = default;
 
-		void SetLight(ShaderLoader& shader) override;
+		void SetPosition(const vec3& pos);
+
+		void SetConstant(float v);
+
+		void SetLinear(float v);
+
+		void SetQuadratic(float v);
+
+		const vec3& GetPosition() const;
+
+		float GetConstant() const;
+
+		float GetLinear() const;
+
+		float GetQuadratic() const;
 
 	private:
 		vec3 m_position_;
@@ -84,12 +92,17 @@ namespace Light
 
 		~SpotLight() = default;
 
-		void SetLight(ShaderLoader& shader) override;
+		void SetDirection(const vec3& v3);
+
+		void SetPosition(const vec3& v3);
+
+		const vec3& GetDirection() const;
+
+		const vec3& GetPosition() const;
 
 	private:
 		vec3 m_position_;
 		vec3 m_direction_;
 		float cutOff;
-
 	};
 }
