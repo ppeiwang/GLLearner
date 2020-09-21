@@ -43,11 +43,17 @@ struct SpotLight{
 
 uniform int light_type;
 
-uniform DirectionLight direction_light;
+uniform DirectionLight direction_light[8];
 
-uniform PointLight point_light;
+uniform PointLight point_light[32];
 
-uniform SpotLight spot_light;
+uniform SpotLight spot_light[16];
+
+uniform int direction_light_count;
+
+uniform int point_light_count;
+
+uniform int spot_light_count;
   
 uniform vec3 objectColor;
 
@@ -73,6 +79,8 @@ vec3 ApplyDirectionLight(DirectionLight direction_light, vec3 normal, vec3 viewD
 	vec3 result = (ambient + diffuse + specular);
 	FragColor = vec4(result, 1.0);
 }
+
+
 
 void main()
 {

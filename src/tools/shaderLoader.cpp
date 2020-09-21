@@ -4,6 +4,7 @@
 #include "tools/shaderLoader.h"
 #include "glad/glad.h"
 #include "glm/gtc/type_ptr.hpp"
+#include "utilities/StringTable.h"
 
 ShaderLoader::ShaderLoader(const std::string& vertex_path, const std::string& fragment_path)
 {
@@ -150,32 +151,90 @@ std::string ShaderLoader::Read(const std::string& file_path)
 
 bool ShaderLoader::AddDirectionLight(const Light::DirectionLight& d_light)
 {
-	if (direction_light_count < k_direction_light_limit)
+	if (m_direction_light_count < global::k_direction_light_limit)
 	{
-		direction_light_count++;
+		m_direction_light_count++;
 
-		const std::string str_direction_light = "direction_light";
-		const std::string variable_prefix = str_direction_light + "[" + std::to_string(direction_light_count) + "]";
-		const std::string variable_ambient = variable_prefix + ".ambient";
+		const std::string variable_prefix = std::string{ global::k_shader_variable_direction_light.data()} + "[" + std::to_string(m_direction_light_count) + "].";
 
-		SetFloatVec("direction_light.ambient", d_light.GetAmbient());
-		SetFloatVec("direction_light.diffuse", d_light.GetDiffuse());
-		SetFloatVec("direction_light.specular", d_light.GetSpecular());
-		SetFloatVec("direction_light.direction", d_light.GetDirection());
+		const std::string variable_ambient = variable_prefix + global::k_shader_member_ambient.data();
+		const std::string variable_diffuse = variable_prefix + global::k_shader_member_diffuse.data();
+		const std::string variable_specular = variable_prefix + global::k_shader_member_specular.data();
+		const std::string variable_direction = variable_prefix + global::k_shader_member_direction.data();
+
+		SetInt(global::k_shader_variable_direction_light_count.data(), m_direction_light_count);
+		SetFloatVec(variable_ambient.c_str(), d_light.GetAmbient());
+		SetFloatVec(variable_diffuse.c_str(), d_light.GetDiffuse());
+		SetFloatVec(variable_specular.c_str(), d_light.GetSpecular());
+		SetFloatVec(variable_direction.c_str(), d_light.GetDirection());
+
 		return true;
 	}
 
-	assert(false);
+	assert(false && "Out of range of direction lights limit");
 	return false;
 }
 
 bool ShaderLoader::AddPointLight(const Light::PointLight& p_light)
 {
+	if (m_point_light_count < global::k_point_light_limit)
+	{
+		m_point_light_count++;
 
+		const std::string variable_prefix = std::string{ global::k_shader_variable_point_light.data() } + "[" + std::to_string(m_point_light_count) + "].";
+
+		const std::string variable_ambient = variable_prefix + global::k_shader_member_ambient.data();
+		const std::string variable_diffuse = variable_prefix + global::k_shader_member_diffuse.data();
+		const std::string variable_specular = variable_prefix + global::k_shader_member_specular.data();
+		const std::string variable_direction = variable_prefix + global::k_shader_member_direction.data();
+		const std::string variable_position = variable_prefix + global::k_shader_member_position.data();
+		const std::string variable_constant = variable_prefix + global::k_shader_member_constant.data();
+		const std::string variable_linear = variable_prefix + global::k_shader_member_linear.data();
+		const std::string variable_quadratic = variable_prefix + global::k_shader_member_quadratic.data();
+
+		SetInt(global::k_shader_variable_point_light_count.data(), m_point_light_count);
+		SetFloatVec(variable_ambient.c_str(), p_light.GetAmbient());
+		SetFloatVec(variable_diffuse.c_str(), p_light.GetDiffuse());
+		SetFloatVec(variable_specular.c_str(), p_light.GetSpecular());
+		SetFloatVec(variable_position.c_str(), p_light.GetPosition());
+		SetFloat(variable_constant.c_str(), p_light.GetConstant());
+		SetFloat(variable_linear.c_str(), p_light.GetLinear());
+		SetFloat(variable_quadratic.c_str(), p_light.GetQuadratic());
+
+		return true;
+	}
+
+	assert(false && "Out of range of point lights limit");
+	return false;
 }
 
 bool ShaderLoader::AddSpotLight(const Light::SpotLight& s_light)
 {
+	if (m_spot_light_count < global::k_spot_light_limit)
+	{
+		m_spot_light_count++;
 
+		const std::string variable_prefix = std::string{ global::k_shader_variable_spot_light.data() } + "[" + std::to_string(m_spot_light_count) + "].";
+
+		const std::string variable_ambient = variable_prefix + global::k_shader_member_ambient.data();
+		const std::string variable_diffuse = variable_prefix + global::k_shader_member_diffuse.data();
+		const std::string variable_specular = variable_prefix + global::k_shader_member_specular.data();
+		const std::string variable_position = variable_prefix + global::k_shader_member_position.data();
+		const std::string variable_direction = variable_prefix + global::k_shader_member_direction.data();
+		const std::string variable_cutoff = variable_prefix + global::k_shader_member_cutOff.data();
+
+		SetInt(global::k_shader_variable_spot_light_count.data(), m_spot_light_count);
+		SetFloatVec(variable_ambient.c_str(), s_light.GetAmbient());
+		SetFloatVec(variable_diffuse.c_str(), s_light.GetDiffuse());
+		SetFloatVec(variable_specular.c_str(), s_light.GetSpecular());
+		SetFloatVec(variable_position.c_str(), s_light.GetPosition());
+		SetFloatVec(variable_direction.c_str(), s_light.GetDirection());
+		SetFloat(variable_cutoff.c_str(), s_light.GetCutoff());
+
+		return true;
+	}
+
+	assert(false && "Out of range of spot lights limit");
+	return false;
 }
 

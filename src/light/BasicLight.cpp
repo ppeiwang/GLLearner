@@ -44,25 +44,6 @@ namespace Light
 		return m_direction_;
 	}
 
-	void DirectionLight::SetLight(ShaderLoader& shader, uint32_t /*index = 0*/)
-	{
-		shader.SetFloatVec("direction_light.ambient", m_ambient_);
-		shader.SetFloatVec("direction_light.diffuse", m_diffuse_);
-		shader.SetFloatVec("direction_light.specular", m_specular_);
-
-		shader.SetFloatVec("direction_light.direction", m_direction_);
-	}
-
-	void PointLight::SetLight(ShaderLoader& shader, uint32_t index /* = 0*/)
-	{
-		shader.SetFloatVec("point_light.ambient", m_ambient_);
-		shader.SetFloatVec("point_light.diffuse", m_diffuse_);
-		shader.SetFloatVec("point_light.specular", m_specular_);
-
-		shader.SetFloatVec("direction_light.direction", m_direction_);
-		
-	}
-
 	void PointLight::SetPosition(const vec3& pos)
 	{
 		m_position_ = pos;
@@ -122,6 +103,12 @@ namespace Light
 	{
 		return m_position_;
 	}
+
+	float SpotLight::GetCutoff() const
+	{
+		return m_cutOff_;
+	}
+
 }
 
 

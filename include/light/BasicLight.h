@@ -1,6 +1,5 @@
 #pragma once
 #include "glm/glm.hpp"
-#include "tools/shaderLoader.h"
 
 namespace Light
 {
@@ -100,9 +99,11 @@ namespace Light
 
 		const vec3& GetPosition() const;
 
+		float GetCutoff() const;
+
 	private:
 		vec3 m_position_;
 		vec3 m_direction_;
-		float cutOff;
+		float m_cutOff_;
 	};
 }

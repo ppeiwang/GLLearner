@@ -16,7 +16,7 @@
 #include "scene/Scene.h"
 #include "gui/GUIManager.h"
 #include "gui/GuiPanel.h"
-#include "light/BasicLight.h"
+#include "light/Light.h"
 
 //#debug begin
 #include "glm/gtc/quaternion.hpp"

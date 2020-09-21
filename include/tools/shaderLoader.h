@@ -2,7 +2,7 @@
 #include <string>
 #include "glm/glm.hpp"
 #include "Config.h"
-#include "light/light.h"
+#include "light/BasicLight.h"
 
 class ShaderLoader
 {
@@ -47,10 +47,10 @@ public:
 	// the program ID
 	unsigned int ID_;
 
-	unsigned int direction_light_count{ 0 };
+	unsigned int m_direction_light_count{ 0 };
 
-	unsigned int point_light_count{ 0 };
+	unsigned int m_point_light_count{ 0 };
 
-	unsigned int spot_light_count{ 0 };
+	unsigned int m_spot_light_count{ 0 };
 
 };
