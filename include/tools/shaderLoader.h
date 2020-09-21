@@ -41,6 +41,8 @@ public:
 
 	bool AddSpotLight(const Light::SpotLight& s_light);
 
+	void ResetLightCount();
+
 	static std::string Read(const std::string& file_path);
 
 public:

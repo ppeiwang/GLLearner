@@ -95,15 +95,22 @@ namespace Light
 
 		void SetPosition(const vec3& v3);
 
+		void SetCutOff(float v);
+
+		void SetOuterCutOff(float v);
+
 		const vec3& GetDirection() const;
 
 		const vec3& GetPosition() const;
 
-		float GetCutoff() const;
+		float GetCutOff() const;
+
+		float GetOuterCutOff() const;
 
 	private:
 		vec3 m_position_;
 		vec3 m_direction_;
-		float m_cutOff_;
+		float m_cut_off_;
+		float m_out_cut_off_;
 	};
 }

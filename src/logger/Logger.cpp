@@ -26,13 +26,13 @@ void Logger::Warning(const std::string& s)
 
 void Logger::Error(const std::string& s)
 {
-	assert(false);
 	std::cerr << s << std::endl;
 	auto ptr_gui_logger = GetInstance().m_weak_ptr_logger_.lock();
 	if (ptr_gui_logger)
 	{
 		ptr_gui_logger->Error(s);
 	}
+	assert(false);
 }
 
 void Logger::SetGuiLogger(std::shared_ptr<GuiLogger> ptr_logger)

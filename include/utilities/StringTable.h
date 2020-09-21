@@ -9,17 +9,17 @@ namespace global
 
 	// variables
 
-	const std::string_view k_shader_variable_direction_light{ "direction_light" };
+	const std::string_view k_shader_variable_direction_light{ "direction_lights" };
 
-	const std::string_view k_shader_variable_direction_light_count{ "direction_light_count" };
+	const std::string_view k_shader_variable_direction_light_count{ "direction_lights_count" };
 
-	const std::string_view k_shader_variable_point_light{ "point_light" };
+	const std::string_view k_shader_variable_point_light{ "point_lights" };
 
-	const std::string_view k_shader_variable_point_light_count{ "point_light_count" };
+	const std::string_view k_shader_variable_point_light_count{ "point_lights_count" };
 
-	const std::string_view k_shader_variable_spot_light{ "spot_light" };
+	const std::string_view k_shader_variable_spot_light{ "spot_lights" };
 
-	const std::string_view k_shader_variable_spot_light_count{ "spot_light_count" };
+	const std::string_view k_shader_variable_spot_light_count{ "spot_lights_count" };
 
 	// members
 
@@ -41,6 +41,7 @@ namespace global
 
 	const std::string_view k_shader_member_cutOff{ "cutOff" };
 
+	const std::string_view k_shader_member_outerCutOff{ "outerCutOff" };
 
 }
 

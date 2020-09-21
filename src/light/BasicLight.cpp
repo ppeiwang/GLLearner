@@ -104,9 +104,24 @@ namespace Light
 		return m_position_;
 	}
 
-	float SpotLight::GetCutoff() const
+	float SpotLight::GetCutOff() const
 	{
-		return m_cutOff_;
+		return m_cut_off_;
+	}
+
+	void SpotLight::SetCutOff(float v)
+	{
+		m_cut_off_ = v;
+	}
+
+	void SpotLight::SetOuterCutOff(float v)
+	{
+		m_out_cut_off_ = v;
+	}
+
+	float SpotLight::GetOuterCutOff() const
+	{
+		return m_out_cut_off_;
 	}
 
 }

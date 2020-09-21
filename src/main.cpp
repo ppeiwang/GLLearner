@@ -264,21 +264,16 @@ int main()
 	const std::string texture_diffuse_path{"assets/texture/container2.png"};
 	const std::string texture_specular_path{"assets/texture/container2_specular.png"};
 
-	ShaderLoader shader_cube_on_light{ R"(assets/shader/vs_texture.glsl)", R"(assets/shader/fs_cube_on_light.glsl)" };
-	ShaderLoader shader_light{ R"(assets/shader/vs_raw.glsl)", R"(assets/shader/fs_light.glsl)" };
+	ShaderLoader shader_cube{ R"(assets/shader/vs_texture.glsl)", R"(assets/shader/light_map.fs)" };
+	ShaderLoader shader_light{ R"(assets/shader/vs_raw.glsl)", R"(assets/shader/raw.fs)" };
 	//ShaderLoader shader_interpolate(R"(shader/vs.glsl)", R"(shader/fs_texture.glsl)");
 
-	shader_cube_on_light.Use();
+	shader_cube.Use();
 	const auto texture_diffuse_id =  TextureLoader::LoadTexture(texture_diffuse_path.c_str());
 	const auto texture_sepcular_id =  TextureLoader::LoadTexture(texture_specular_path.c_str());
-	shader_cube_on_light.SetInt("material.diffuse", 0);
-	shader_cube_on_light.SetInt("material.specular", 1);
+	shader_cube.SetInt("material.diffuse", 0);
+	shader_cube.SetInt("material.specular", 1);
 
-
-	//shader_interpolate.Use();
-	//shader_interpolate.SetInt("texture0", 1);
-	//shader_interpolate.SetInt("texture1", 2);
-	
 	glm::vec4 color_a{ 1.0f, 1.0f, 0.0f, 1.0f };
 
 	glm::vec4 color_b{ 0.0f, 1.0f, 1.0f, 1.0f };
@@ -340,88 +335,114 @@ int main()
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, texture_sepcular_id);
 
-			auto modelMatrix = glm::mat4{ 1 };
-			modelMatrix = glm::translate(modelMatrix, glm::vec3{ 0, 0, -5.f });
+			auto model_matrix = glm::mat4{ 1 };
+			model_matrix = glm::translate(model_matrix, glm::vec3{ 0, 0, -5.f });
 
 			// update light
+			auto CalculateLightPos = [](const glm::mat4& model, const float radius, float rotation)
 			{
-				const auto cube_pos = modelMatrix * glm::vec4{0.f,0.f,0.f, 1.f};
-				float cur_time = glfwGetTime();
-				const float radius = 3.0f;
-				float light_x = cube_pos.x + glm::cos(cur_time) * radius;
-				float light_y = cube_pos.y;
-				float light_z = cube_pos.z + glm::sin(cur_time) * radius;
+				const auto cube_pos = model * glm::vec4{ 0.f,0.f,0.f, 1.f };
+				const float x = cube_pos.x + glm::cos(rotation) * radius;
+				const float y = cube_pos.y;
+				const float z = cube_pos.z + glm::sin(rotation) * radius;
+				return glm::vec3{x, y, z};
+			};
 
-			//	global_scene_instance.SetLightPosition(light_x, light_y, light_z);
-			}
-
-			glm::vec3 lightColor{ 1.f, 1.f, 1.f };
-			glm::vec3 lightDirection{ 0.f, 0.f, 1.f };
-			//lightColor.x = glm::abs(sin(glfwGetTime() * 2.0f));
-			//lightColor.y = glm::abs(sin(glfwGetTime() * 0.7f));
-			//lightColor.z = glm::abs(sin(glfwGetTime() * 1.3f));
+			const glm::vec3 lightColor{ 1.f, 1.f, 1.f };
+			const glm::vec3 lightDirection{ 0.55f, 0.8f, 0.25f };
+			const int point_lights_num = 0;
 
 			{
-				shader_cube_on_light.Use();
+				shader_cube.Use();
 
-				shader_cube_on_light.SetFloatVec("objectColor", { 1.0f, 0.5f, 0.31f });
-				shader_cube_on_light.SetFloatVec("viewPos", camera_instance_.GetPosition());
 
-				shader_cube_on_light.SetInt("light_type", static_cast<int>(Light::LigthType::SpotLight));
-				shader_cube_on_light.SetFloatVec("spot_light.direction", camera_instance_.GetForward());
-				shader_cube_on_light.SetFloatVec("spot_light.ambient", lightColor * glm::vec3{ 0.5f } *glm::vec3{ 0.2f });
-				shader_cube_on_light.SetFloatVec("spot_light.diffuse", lightColor* glm::vec3{ 0.5f }); // darken diffuse light a bit
-				shader_cube_on_light.SetFloatVec("spot_light.specular", 1.0f, 1.0f, 1.0f);
-				shader_cube_on_light.SetFloatVec("spot_light.position", camera_instance_.GetPosition());
-				//shader_cube_on_light.SetFloatVec("spot_light.position", global_scene_instance.GetLightPosition());
+				// set lights
 
-				shader_cube_on_light.SetFloat("spot_light.cutOff", glm::cos(glm::radians(12.5f)));
-				shader_cube_on_light.SetFloat("point_light.constant", 1.0f);
-				shader_cube_on_light.SetFloat("point_light.linear", 0.07f);
-				shader_cube_on_light.SetFloat("point_light.quadratic", 0.017f);
+				shader_cube.SetFloatVec("viewPos", camera_instance_.GetPosition());
+				shader_cube.SetFloat("material.shininess", 32.0f);
 
-				shader_cube_on_light.SetFloat("material.shininess", 32.0f);
+				Light::DirectionLight direction_light;
+				direction_light.SetAmbient({ 0.05f, 0.05f, 0.05f });
+				direction_light.SetDiffuse({ 0.4f, 0.4f, 0.4f });
+				direction_light.SetSpecular({ 0.6f, 0.6f, 0.6f });
+				direction_light.SetDirection(lightDirection);
+				//shader_cube.AddDirectionLight(direction_light);
+
+				for (int i = 0; i < point_lights_num; i++)
+				{
+					Light::PointLight point_light;
+					const auto rotation = 2.0f * glm::pi<float>() * (i + 1.0f) / point_lights_num;
+					auto point_light_pos = CalculateLightPos(model_matrix, 6.0f, rotation);
+					point_light.SetPosition(point_light_pos);
+					point_light.SetAmbient({ 0.05f, 0.05f, 0.05f });
+					point_light.SetDiffuse({ 0.8f, 0.8f, 0.8f });
+					point_light.SetSpecular({ 1.0f, 1.0f, 1.0f });
+					point_light.SetConstant(1.0f);
+					point_light.SetLinear(0.09f);
+					point_light.SetQuadratic(0.032f);
+					shader_cube.AddPointLight(point_light);
+				}
+
+				Light::SpotLight spot_light;
+				spot_light.SetDirection(camera_instance_.GetForward());
+				spot_light.SetPosition(camera_instance_.GetPosition());
+				spot_light.SetAmbient(lightColor* glm::vec3{ 0.5f } *glm::vec3{ 0.2f });
+				spot_light.SetDiffuse(lightColor* glm::vec3{ 0.5f });
+				spot_light.SetSpecular({ 1.0f, 1.0f, 1.0f });
+				spot_light.SetCutOff(glm::cos(glm::radians(12.5f)));
+				spot_light.SetOuterCutOff(glm::cos(glm::radians(16.f)));
+
+				shader_cube.AddSpotLight(spot_light);
 
 				const auto& viewMatrix = camera_instance_.GetViewMatrix();
 				const auto& projMatrix = camera_instance_.GetProjectMatrix();
 
-				//shader_cube_on_light.SetMatrix("model", modelMatrix);
-				shader_cube_on_light.SetMatrix("view", viewMatrix);
-				shader_cube_on_light.SetMatrix("projection", projMatrix);
+				//shader_cube.SetMatrix("model", modelMatrix);
+				shader_cube.SetMatrix("view", viewMatrix);
+				shader_cube.SetMatrix("projection", projMatrix);
 			
 				glBindVertexArray(VAO[1]);
-				for (int cube_index = 0; cube_index < 18; cube_index++)
+				const int cube_count = 18;
+				for (int cube_index = point_lights_num; cube_index < cube_count + point_lights_num; cube_index++)
 				{
 					auto pos = vec_rand_pos[cube_index];
 					float angle = 20.0f * cube_index;
-					modelMatrix = glm::translate(glm::identity<glm::mat4>(), pos);
+					model_matrix = glm::translate(glm::identity<glm::mat4>(), pos);
 
-					modelMatrix = glm::rotate(modelMatrix, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+					model_matrix = glm::rotate(model_matrix, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 
-					shader_cube_on_light.SetMatrix("model", modelMatrix);
+					shader_cube.SetMatrix("model", model_matrix);
 					glDrawArrays(GL_TRIANGLES, 0, 36);
 				}
 
+				shader_cube.ResetLightCount();
 			}	
 
 			{
 				shader_light.Use();
-				auto modelMatrix = glm::mat4{ 1 };
 
-				modelMatrix = glm::translate(modelMatrix, global_scene_instance.GetLightPosition());
-				modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f));
+				glBindVertexArray(light_VAO);
+
+				auto modelMatrix = glm::mat4{ 1 };
 				const auto& viewMatrix = camera_instance_.GetViewMatrix();
 				const auto& projMatrix = camera_instance_.GetProjectMatrix();
 
+				glBindVertexArray(light_VAO);
 				shader_light.SetFloatVec("uFragColor", lightColor.x, lightColor.y, lightColor.z, 1.0f);
-				shader_light.SetMatrix("model", modelMatrix);
 				shader_light.SetMatrix("view", viewMatrix);
 				shader_light.SetMatrix("projection", projMatrix);
 
-				glBindVertexArray(light_VAO);
-				glDrawArrays(GL_TRIANGLES, 0, 36);
-			}
+				modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f));
+				for (int i = 0; i < point_lights_num; i++)
+				{
+					const auto rotation = 2.0f * glm::pi<float>() * (i + 1.0f) / point_lights_num;
+					auto point_light_pos = CalculateLightPos(modelMatrix, 6.0f, rotation);
 
+					modelMatrix = glm::translate(modelMatrix, point_light_pos);
+					shader_light.SetMatrix("model", modelMatrix);
+					glDrawArrays(GL_TRIANGLES, 0, 36);
+				}
+			}
 		
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}
@@ -468,7 +489,7 @@ void processInput(GLFWwindow* window)
 	glm::vec3 translation_increment{ 0 };
 	glm::vec3 rotation_increment{ 0 };
 
-	const float translation_delta = 0.5f;
+	const float translation_delta = 0.2f;
 	const float rotation_delta = 0.02f;
 	// left
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
