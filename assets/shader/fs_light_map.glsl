@@ -56,7 +56,7 @@ uniform int spot_lights_count;
 
 uniform vec3 viewPos;
 
-vec3 ApplyDirectionLight(DirectionLight direction_light)
+vec3 AddDirectionLight(DirectionLight direction_light)
 {
 	// ambient
 	vec3 ambient = direction_light.ambient * vec3(texture(material.diffuse, TexCoords));
@@ -78,7 +78,7 @@ vec3 ApplyDirectionLight(DirectionLight direction_light)
 	return result;
 }
 
-vec3 ApplyPointLight(PointLight point_light)
+vec3 AddPointLight(PointLight point_light)
 {
 	// ambient
 	vec3 ambient = point_light.ambient * vec3(texture(material.diffuse, TexCoords));
@@ -103,7 +103,7 @@ vec3 ApplyPointLight(PointLight point_light)
 	return result;
 }
 
-vec3 ApplySpotLight(SpotLight spot_light)
+vec3 AddSpotLight(SpotLight spot_light)
 {
 	vec3 lightDir = normalize(spot_light.position - FragPos);
 
@@ -133,17 +133,17 @@ void main()
 	vec3 color = vec3(0.0, 0.0, 0.0);
 	for(int i = 0; i < direction_lights_count; i++)
 	{
-		color += ApplyDirectionLight(direction_lights[i]);
+		color += AddDirectionLight(direction_lights[i]);
 	}
 
 	for(int i = 0; i < point_lights_count; i++)
 	{
-		color += ApplyPointLight(point_lights[i]);
+		color += AddPointLight(point_lights[i]);
 	}
 
 	for(int i = 0; i < spot_lights_count; i++)
 	{
-		color += ApplySpotLight(spot_lights[i]);
+		color += AddSpotLight(spot_lights[i]);
 	}
 
 	FragColor = vec4(color, 0.0);

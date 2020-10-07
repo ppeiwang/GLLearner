@@ -264,7 +264,7 @@ int main()
 	const std::string texture_diffuse_path{"assets/texture/container2.png"};
 	const std::string texture_specular_path{"assets/texture/container2_specular.png"};
 
-	ShaderLoader shader_cube{ R"(assets/shader/vs_texture.glsl)", R"(assets/shader/light_map.fs)" };
+	ShaderLoader shader_cube{ R"(assets/shader/vs_texture.glsl)", R"(assets/shader/fs_light_map.glsl)" };
 	ShaderLoader shader_light{ R"(assets/shader/vs_raw.glsl)", R"(assets/shader/raw.fs)" };
 	//ShaderLoader shader_interpolate(R"(shader/vs.glsl)", R"(shader/fs_texture.glsl)");
 
@@ -335,22 +335,22 @@ int main()
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, texture_sepcular_id);
 
+			const auto center_offset = glm::vec3{ 0, 0, 5.f };
 			auto model_matrix = glm::mat4{ 1 };
-			model_matrix = glm::translate(model_matrix, glm::vec3{ 0, 0, -5.f });
+			model_matrix = glm::translate(model_matrix, center_offset);
 
 			// update light
-			auto CalculateLightPos = [](const glm::mat4& model, const float radius, float rotation)
+			auto CalculateLightPos = [](const glm::vec3& center, const float radius, float rotation)
 			{
-				const auto cube_pos = model * glm::vec4{ 0.f,0.f,0.f, 1.f };
-				const float x = cube_pos.x + glm::cos(rotation) * radius;
-				const float y = cube_pos.y;
-				const float z = cube_pos.z + glm::sin(rotation) * radius;
+				const float x = center.x + glm::cos(rotation) * radius;
+				const float y = center.y;
+				const float z = center.z + glm::sin(rotation) * radius;
 				return glm::vec3{x, y, z};
 			};
 
 			const glm::vec3 lightColor{ 1.f, 1.f, 1.f };
 			const glm::vec3 lightDirection{ 0.55f, 0.8f, 0.25f };
-			const int point_lights_num = 0;
+			const int point_lights_num = 30;
 
 			{
 				shader_cube.Use();
@@ -366,13 +366,13 @@ int main()
 				direction_light.SetDiffuse({ 0.4f, 0.4f, 0.4f });
 				direction_light.SetSpecular({ 0.6f, 0.6f, 0.6f });
 				direction_light.SetDirection(lightDirection);
-				//shader_cube.AddDirectionLight(direction_light);
+				// shader_cube.AddDirectionLight(direction_light);
 
 				for (int i = 0; i < point_lights_num; i++)
 				{
 					Light::PointLight point_light;
 					const auto rotation = 2.0f * glm::pi<float>() * (i + 1.0f) / point_lights_num;
-					auto point_light_pos = CalculateLightPos(model_matrix, 6.0f, rotation);
+					auto point_light_pos = CalculateLightPos(center_offset, 6.0f, rotation);
 					point_light.SetPosition(point_light_pos);
 					point_light.SetAmbient({ 0.05f, 0.05f, 0.05f });
 					point_light.SetDiffuse({ 0.8f, 0.8f, 0.8f });
@@ -392,7 +392,7 @@ int main()
 				spot_light.SetCutOff(glm::cos(glm::radians(12.5f)));
 				spot_light.SetOuterCutOff(glm::cos(glm::radians(16.f)));
 
-				shader_cube.AddSpotLight(spot_light);
+				//shader_cube.AddSpotLight(spot_light);
 
 				const auto& viewMatrix = camera_instance_.GetViewMatrix();
 				const auto& projMatrix = camera_instance_.GetProjectMatrix();
@@ -423,7 +423,6 @@ int main()
 
 				glBindVertexArray(light_VAO);
 
-				auto modelMatrix = glm::mat4{ 1 };
 				const auto& viewMatrix = camera_instance_.GetViewMatrix();
 				const auto& projMatrix = camera_instance_.GetProjectMatrix();
 
@@ -432,14 +431,14 @@ int main()
 				shader_light.SetMatrix("view", viewMatrix);
 				shader_light.SetMatrix("projection", projMatrix);
 
-				modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f));
 				for (int i = 0; i < point_lights_num; i++)
 				{
-					const auto rotation = 2.0f * glm::pi<float>() * (i + 1.0f) / point_lights_num;
-					auto point_light_pos = CalculateLightPos(modelMatrix, 6.0f, rotation);
+					const auto rotation = 2.0f * glm::pi<float>() * i / point_lights_num;
+					auto point_light_pos = CalculateLightPos(center_offset, 6.0f, rotation);
 
-					modelMatrix = glm::translate(modelMatrix, point_light_pos);
-					shader_light.SetMatrix("model", modelMatrix);
+					auto point_light_cube_model_matrix = glm::scale(glm::identity<glm::mat4>(), glm::vec3(0.2f));
+					point_light_cube_model_matrix = glm::translate(point_light_cube_model_matrix, point_light_pos);
+					shader_light.SetMatrix("model", point_light_cube_model_matrix);
 					glDrawArrays(GL_TRIANGLES, 0, 36);
 				}
 			}
