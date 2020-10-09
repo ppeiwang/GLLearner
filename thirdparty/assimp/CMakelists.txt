@@ -1,0 +1,14 @@
+project(assimp)
+
+add_library(${PROJECT_NAME} INTERFACE)
+target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include/)
+
+set(assimp_lib_path ${CMAKE_CURRENT_LIST_DIR}/lib)
+
+
+#https://zhuanlan.zhihu.com/p/76975231
+
+#target_link_directories(${PROJECT_NAME} INTERFACE ${glfw_lib_path})
+
+target_link_libraries(${PROJECT_NAME} INTERFACE debug ${assimp_lib_path}/assimp-vc142-mtd.lib  ${assimp_lib_path}/zlibstaticd.lib
+INTERFACE optimized ${glfw_lib_path}/assimp-vc142-mt.lib ${glfw_lib_path}/zlibstatic.lib)
