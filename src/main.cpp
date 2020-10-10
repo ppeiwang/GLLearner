@@ -18,6 +18,8 @@
 #include "gui/GuiPanel.h"
 #include "light/Light.h"
 
+#include "assimp/Importer.hpp"
+
 //#debug begin
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtc/constants.hpp"
@@ -26,10 +28,11 @@
 #include "glm/gtc/matrix_transform.hpp"
 //#debug end
 
+using namespace RenderCore;
+
 Scene global_scene_instance{"Simple Scene"};
 
 void processInput(GLFWwindow* window);
-
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -79,6 +82,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main()
 {
+	//Assimp::Importer importer;
+
 	auto ptr_gui_logger = std::make_shared<GuiLogger>();
 	Logger::GetInstance().SetGuiLogger(ptr_gui_logger);
 	GUIManager::GetInstance().AddGuiPanel(ptr_gui_logger);

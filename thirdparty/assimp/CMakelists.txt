@@ -1,14 +1,19 @@
 project(assimp)
 
-add_library(${PROJECT_NAME} INTERFACE)
-target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include/)
+# IMPORTED means that there is no sources to be compilered
+# GLOBAL means that this target exists not only the current folder
+add_library(${PROJECT_NAME} SHARED IMPORTED GLOBAL)
 
-set(assimp_lib_path ${CMAKE_CURRENT_LIST_DIR}/lib)
+set(ASSIMP_ROOT ${CMAKE_CURRENT_LIST_DIR})
+
+set(ASSIMP_NAME "assimp-vc142-mt")
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES   "${ASSIMP_ROOT}/include"
+        IMPORTED_IMPLIB_RELEASE         "${ASSIMP_ROOT}/lib/${ASSIMP_NAME}.lib"
+        IMPORTED_IMPLIB_DEBUG           "${ASSIMP_ROOT}/lib/${ASSIMP_NAME}d.lib"
+        IMPORTED_LOCATION_RELEASE       "${ASSIMP_ROOT}/bin/${ASSIMP_NAME}.dll"
+        IMPORTED_LOCATION_DEBUG         "${ASSIMP_ROOT}/bin/${ASSIMP_NAME}d.dll")
 
 
-#https://zhuanlan.zhihu.com/p/76975231
 
-#target_link_directories(${PROJECT_NAME} INTERFACE ${glfw_lib_path})
-
-target_link_libraries(${PROJECT_NAME} INTERFACE debug ${assimp_lib_path}/assimp-vc142-mtd.lib  ${assimp_lib_path}/zlibstaticd.lib
-INTERFACE optimized ${glfw_lib_path}/assimp-vc142-mt.lib ${glfw_lib_path}/zlibstatic.lib)

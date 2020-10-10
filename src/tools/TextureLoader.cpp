@@ -3,6 +3,7 @@
 #include "stb/stb_image.h"
 #include "logger/Logger.h"
 
+RENDER_CORE_BEGIN
 
 uint32_t TextureLoader::LoadTexture(char const* path)
 {
@@ -41,3 +42,5 @@ uint32_t TextureLoader::LoadTexture(char const* path)
 	return textureID;
 
 }
+
+RENDER_CORE_END

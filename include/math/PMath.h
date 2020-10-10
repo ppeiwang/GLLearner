@@ -1,6 +1,9 @@
 #pragma once
+#include "RenderCoreDefine.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
+
+RENDER_CORE_BEGIN
 
 const float kEpsilon = 0.00001f;
 
@@ -96,3 +99,4 @@ public:
 
 };
 
+RENDER_CORE_END

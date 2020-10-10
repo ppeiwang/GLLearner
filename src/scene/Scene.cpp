@@ -1,5 +1,7 @@
 #include "scene/Scene.h"
 
+RENDER_CORE_BEGIN
+
 Scene::Scene(const std::string& name):
 	m_str_scene_name_{name},
 	m_ptr_camera_instance_{nullptr}
@@ -33,3 +35,4 @@ const glm::vec3& Scene::GetLightPosition() const
 	return m_vec3_light_pos_;
 }
 
+RENDER_CORE_END

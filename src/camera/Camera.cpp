@@ -16,6 +16,8 @@ namespace
 	const vec3 k_default_camera_raw_view_dir = { 0.f, 0.f, -1.f };
 }
 
+RENDER_CORE_BEGIN
+
 Camera::Camera()
 	: m_dirty_(true)
 	, m_free_camera_(true)
@@ -226,3 +228,5 @@ const glm::mat4& Camera::GetProjectMatrix() const noexcept
 {
 	return m_projection_matrix_;
 }
+
+RENDER_CORE_END

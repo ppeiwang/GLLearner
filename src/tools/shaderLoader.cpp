@@ -7,6 +7,8 @@
 #include "utilities/StringTable.h"
 #include "logger/Logger.h"
 
+RENDER_CORE_BEGIN
+
 ShaderLoader::ShaderLoader(const std::string& vertex_path, const std::string& fragment_path)
 {
 	const std::string vertex_source = ShaderLoader::Read(vertex_path);
@@ -258,3 +260,4 @@ void ShaderLoader::ResetLightCount()
 	m_spot_light_count = 0;
 }
 
+RENDER_CORE_END

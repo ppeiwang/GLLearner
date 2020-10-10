@@ -1,8 +1,11 @@
 #pragma once
-#include <memory>
-#include <string>
+#include "RenderCoreDefine.h"
 #include "camera/Camera.h"
 #include "glm/glm.hpp"
+#include <memory>
+#include <string>
+
+RENDER_CORE_BEGIN
 
 class Scene
 {
@@ -27,3 +30,5 @@ private:
 	glm::vec3 m_vec3_light_pos_;
 
 };
+
+RENDER_CORE_END

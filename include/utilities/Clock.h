@@ -1,5 +1,9 @@
 #pragma once
 
+#include "RenderCoreDefine.h"
+
+RENDER_CORE_BEGIN
+
 class Clock
 {
 public:
@@ -54,3 +58,5 @@ private:
 	static unsigned long long mSysOneSecondTickCount;
 	static unsigned long long mSysTickNs;
 };
+
+RENDER_CORE_END

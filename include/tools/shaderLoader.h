@@ -1,8 +1,11 @@
 #pragma once
-#include <string>
-#include "glm/glm.hpp"
+#include "RenderCoreDefine.h"
 #include "Config.h"
 #include "light/BasicLight.h"
+#include "glm/glm.hpp"
+#include <string>
+
+RENDER_CORE_BEGIN
 
 class ShaderLoader
 {
@@ -56,3 +59,5 @@ public:
 	unsigned int m_spot_light_count{ 0 };
 
 };
+
+RENDER_CORE_END

@@ -1,4 +1,7 @@
 #pragma once
+#include "RenderCoreDefine.h"
+
+RENDER_CORE_BEGIN
 
 class Gui
 {
@@ -14,3 +17,5 @@ public:
 protected:
 	bool m_show_flag_ = true;
 };
+
+RENDER_CORE_END

@@ -7,6 +7,7 @@ using glm::mat3;
 using glm::vec3;
 using glm::vec4;
 
+RENDER_CORE_BEGIN
 
 glm::mat4 PMath::TranslationMatrix(const glm::vec3& translation)
 {
@@ -184,3 +185,4 @@ glm::vec3 PMath::ExtractScale(const glm::mat4& t)
 	return scale;
 }
 
+RENDER_CORE_END

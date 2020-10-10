@@ -1,10 +1,12 @@
 #include "light/BasicLight.h"
 
+RENDER_CORE_BEGIN
+
 namespace Light
 {
 	using glm::vec3;
 
-	void BasicLight::SetAmbient(const vec3& v3) 
+	void BasicLight::SetAmbient(const vec3& v3)
 	{
 		m_ambient_ = v3;
 	}
@@ -126,4 +128,4 @@ namespace Light
 
 }
 
-
+RENDER_CORE_END

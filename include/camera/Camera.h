@@ -1,6 +1,9 @@
 #pragma once
+#include "RenderCoreDefine.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
+
+RENDER_CORE_BEGIN
 
 class Camera
 {
@@ -101,3 +104,5 @@ private:
 	glm::mat4 m_projection_matrix_;
 
 };
+
+RENDER_CORE_END

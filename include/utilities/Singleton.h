@@ -1,5 +1,9 @@
 #pragma once
 
+#include "RenderCoreDefine.h"
+
+RENDER_CORE_BEGIN
+
 template<typename T>
 class Singleton
 {
@@ -54,3 +58,5 @@ T* Singleton<T>::m_instance_ = nullptr;
 
 template<typename T>
 typename Singleton<T>::Helper Singleton<T>::m_helper_;
+
+RENDER_CORE_END

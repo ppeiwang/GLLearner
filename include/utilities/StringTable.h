@@ -1,10 +1,12 @@
 #pragma once
+#include "RenderCoreDefine.h"
 #include <string_view>
 #include <string>
 
+RENDER_CORE_BEGIN
+
 namespace global
 {
-
 	/* string_view */
 
 	// variables
@@ -23,7 +25,7 @@ namespace global
 
 	// members
 
-	const std::string_view k_shader_member_ambient{"ambient"};
+	const std::string_view k_shader_member_ambient{ "ambient" };
 
 	const std::string_view k_shader_member_diffuse{ "diffuse" };
 
@@ -45,3 +47,4 @@ namespace global
 
 }
 
+RENDER_CORE_END

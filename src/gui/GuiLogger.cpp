@@ -1,6 +1,8 @@
 #include "gui/GuiLogger.h"
 #include "imgui/include/imgui.h"
 
+RENDER_CORE_BEGIN
+
 bool operator&(int l, GUILoggerLevel r)
 {
 	return l & static_cast<int>(r);
@@ -109,3 +111,4 @@ void GuiLogger::Info(const std::string& msg)
 	Push(msg, GUILoggerLevel::E_Info);
 }
 
+RENDER_CORE_END
