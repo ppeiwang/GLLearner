@@ -82,7 +82,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main()
 {
-	//Assimp::Importer importer;
+	Assimp::Importer importer;
 
 	auto ptr_gui_logger = std::make_shared<GuiLogger>();
 	Logger::GetInstance().SetGuiLogger(ptr_gui_logger);
