@@ -1,6 +1,7 @@
 #include "scene/Mesh.h"
 #include "glad/glad.h"
 #include "logger/Logger.h"
+#include "Config.h"
 
 RENDER_CORE_BEGIN
 
@@ -46,7 +47,7 @@ void Mesh::SetupMesh()
 		glBindVertexArray(m_vertex_array_object_);
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vertex_buffer_object_);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices_[0])*m_vertices_.size(), &m_vertices_[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*m_vertices_.size(), &m_vertices_[0], GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_element_buffer_object_);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(m_indices_[0])*m_indices_.size(), &m_indices_[0], GL_STATIC_DRAW);
@@ -70,6 +71,52 @@ void Mesh::SetupMesh()
 		Logger::Warning("Bad Mesh Data. vertex or index array is empty");
 	}
 
+}
+
+std::string operator + (const std::string & str, const std::string_view & strv)
+{
+	std::string s{ str };
+	s.append(strv);
+	return s;
+}
+
+void Mesh::Draw(Shader& shader)
+{
+	unsigned int diffuseNr = 1;
+	unsigned int specularNr = 1;
+
+	for (int i = 0; i < m_textures_.size(); i++)
+	{
+		if (m_textures_.size() > global::k_texture_diffuse_limit)
+		{
+			Logger::Error(std::string("Texture diffuse count is out of the limit: ") + std::to_string(global::k_texture_diffuse_limit));
+			return;
+		}
+
+		if (m_textures_.size() > global::k_texture_specular_limit)
+		{
+			Logger::Error(std::string("Texture specular count is out of the limit: ") + std::to_string(global::k_texture_specular_limit));
+			return;
+		}
+
+		glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
+		// retrieve texture number (the N in diffuse_textureN)
+		std::string number;
+		const std::string_view& name = Texture::TextureTypeToString(m_textures_[i].type_);
+		if (name == global::k_shader_member_diffuse)
+			number = std::to_string(diffuseNr++);
+		else if (name == global::k_shader_member_specular)
+			number = std::to_string(specularNr++);
+
+		shader.SetInt(("material." + name + number).c_str(), i);
+		glBindTexture(GL_TEXTURE_2D, m_textures_[i].id_);
+	}
+	glActiveTexture(GL_TEXTURE0);
+
+	// draw mesh
+	glBindVertexArray(m_vertex_array_object_);
+	glDrawElements(GL_TRIANGLES, m_indices_.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }
 
 RENDER_CORE_END

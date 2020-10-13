@@ -2,6 +2,7 @@
 #include "RenderCoreDefine.h"
 #include "Vertex.h"
 #include "Texture.h"
+#include "shader/Shader.h"
 #include <vector>
 
 RENDER_CORE_BEGIN
@@ -32,7 +33,7 @@ public:
 
 	inline const std::vector<Texture>& GetTextures() const;
 
-	// void Draw();
+	void Draw(Shader& shader);
 
 	void SetupMesh();
 

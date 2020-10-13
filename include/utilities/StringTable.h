@@ -9,6 +9,8 @@ namespace global
 {
 	/* string_view */
 
+	const std::string_view k_shader_empty{ "" };
+
 	// variables
 
 	const std::string_view k_shader_variable_direction_light{ "direction_lights" };

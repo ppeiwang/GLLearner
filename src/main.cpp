@@ -61,7 +61,6 @@ void SetWindowTitle(GLFWwindow* window, const std::string& title, float frame_ra
 		title_concat.append(ss.str());
 		glfwSetWindowTitle(window, title_concat.c_str());
 	}
-
 }
 
 void mouse_callback(GLFWwindow* /*window*/, double /*xpos*/, double /*ypos*/)
@@ -82,11 +81,14 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main()
 {
-	Assimp::Importer importer;
+	// always initialize the logger at the first time
+	{
+		auto ptr_gui_logger = std::make_shared<GuiLogger>();
+		Logger::GetInstance().SetGuiLogger(ptr_gui_logger);
+		GUIManager::GetInstance().AddGuiPanel(ptr_gui_logger);
+	}
 
-	auto ptr_gui_logger = std::make_shared<GuiLogger>();
-	Logger::GetInstance().SetGuiLogger(ptr_gui_logger);
-	GUIManager::GetInstance().AddGuiPanel(ptr_gui_logger);
+	Assimp::Importer importer;
 
 	glfwInit();
 
@@ -269,8 +271,10 @@ int main()
 	const std::string texture_diffuse_path{"assets/texture/container2.png"};
 	const std::string texture_specular_path{"assets/texture/container2_specular.png"};
 
-	ShaderLoader shader_cube{ R"(assets/shader/vs_texture.glsl)", R"(assets/shader/fs_light_map.glsl)" };
-	ShaderLoader shader_light{ R"(assets/shader/vs_raw.glsl)", R"(assets/shader/raw.fs)" };
+	ShaderLoader shader_loader;
+
+	Shader shader_cube = shader_loader.Load( R"(assets/shader/vs_texture.glsl)", R"(assets/shader/fs_light_map.glsl)" );
+	Shader shader_light = shader_loader.Load(R"(assets/shader/vs_raw.glsl)", R"(assets/shader/raw.fs)");
 	//ShaderLoader shader_interpolate(R"(shader/vs.glsl)", R"(shader/fs_texture.glsl)");
 
 	shader_cube.Use();
