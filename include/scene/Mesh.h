@@ -17,7 +17,7 @@ public:
 	Mesh(T1&& vertices, T2&& indices, T3&& textures) :
 		m_vertices_{std::forward<T1>(vertices)}, m_indices_{std::forward<T2>(indices)}, m_textures_{std::forward<T3>(textures)}
 	{
-		SetupMesh();
+
 	}
 
 	inline std::vector<Vertex>& GetVertices();
@@ -34,7 +34,6 @@ public:
 
 	// void Draw();
 
-private:
 	void SetupMesh();
 
 private:
@@ -42,8 +41,9 @@ private:
 	std::vector<uint32_t> m_indices_;
 	std::vector<Texture> m_textures_;
 
-	uint32_t VAO, VBO, EBO;
-
+	uint32_t m_vertex_array_object_;
+	uint32_t m_vertex_buffer_object_;
+	uint32_t m_element_buffer_object_;
 };
 
 RENDER_CORE_END
