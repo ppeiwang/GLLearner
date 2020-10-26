@@ -45,7 +45,7 @@ uint32_t TextureLoader::LoadTexture(char const* path)
 
 Texture TextureLoader::LoadTexture(char const* path, ETextureTye texture_type)
 {
-	uint32_t textureID = LoadTexture(path);
+	const uint32_t textureID = LoadTexture(path);
 	return { textureID, texture_type };
 }
 
