@@ -95,52 +95,6 @@ glm::vec3 PrivotRotate(const glm::vec3& point, const glm::vec3& pivot, const flo
 
 int main()
 {
-	{
-		auto fRand = [](int min, int max)
-		{
-			std::random_device rd;
-			std::mt19937 gen(rd());
-			std::uniform_int_distribution<> dis(min, max);
-			glm::vec3 v;
-			for (size_t i = 0; i < 3; i++)
-				v[i] = dis(gen);
-			return v;
-		};
-
-		const auto p0 = fRand(1, 10);
-
-		const auto p1 = fRand(20, 30);
-
-		std::vector<float> vec_rad;
-		std::random_device f_rd;
-		std::mt19937 f_gen(f_rd());
-		std::uniform_real_distribution<> f_dis(0, glm::two_pi<float>());
-
-		const int count = 10000;
-		for (int i = 0; i < count; i++)
-		{
-			vec_rad.push_back(f_dis(f_gen));
-		}
-
-		for (int i = 0; i < count; i++)
-		{
-			const float rad = vec_rad[i];
-
-			auto p2 = PrivotRotate(p1, p0, rad, {0, 1.0f, 0});
-
-			const auto dot_produce = glm::dot(glm::normalize(p2 - p0), glm::normalize(p1 - p0));
-
-			const float bias = glm::acos(dot_produce) - rad;
-			
-			bool eps = bias < 0.001f;
-
-			assert(eps);
-
-		}
-	}
-
-
-
 	// always initialize the logger at the first time
 	{
 		auto ptr_gui_logger = std::make_shared<GuiLogger>();
@@ -148,7 +102,6 @@ int main()
 		GUIManager::GetInstance().AddGuiPanel(ptr_gui_logger);
 	}
 
-	Assimp::Importer importer;
 
 	glfwInit();
 
