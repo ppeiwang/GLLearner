@@ -128,10 +128,8 @@ glm::quat PMath::QuaternionRotate(const float angleRad, const glm::vec3& v)
 	scale.y = glm::length(m[1]); \
 	scale.z = glm::length(m[2]); \
 	/* and the sign of the scaling */ \
-	bool check_non_uniform = false; \
 	if (glm::determinant(t) < 0)\
 	{\
-		check_non_uniform = true; \
 		scale = -scale; \
 	}\
 	/* and remove all scaling from the matrix */ \
@@ -160,98 +158,32 @@ void PMath::TransformMatrixDecompose(const glm::mat4& t, glm::vec3& translation,
 		C = cos(angle_y), D = sin(angle_y);
 		E = cos(angle_z), F = sin(angle_z);
 	*/
-	auto Extract_Rotation_Part = [&]()
+	rotation.y = std::asin(-m[0].z);// D. Angle around Y-axis.
+
+	const auto C = std::cos(rotation.y);
+
+	if (std::fabs(C) > glm::epsilon<float>())
 	{
-		rotation.y = std::asin(-m[0].z);// D. Angle around Y-axis.
+		// Finding angle around X-axis.
+		auto tan_x = m[2].z / C;	// A
+		auto tan_y = m[1].z / C;	// B
 
-		const auto C = std::cos(rotation.y);
-
-		if (std::fabs(C) > glm::epsilon<float>())
-		{
-			// Finding angle around X-axis.
-			auto tan_x = m[2].z / C;	// A
-			auto tan_y = m[1].z / C;	// B
-
-			rotation.x = std::atan2(tan_y, tan_x);
-			// Finding angle around Z-axis.
-			tan_x = m[0].x / C;	// E
-			tan_y = m[0].y / C;	// F
-			rotation.z = std::atan2(tan_y, tan_x);
-		}
-		else
-		{
-			// Y-axis is fixed.
-			rotation.x = 0;// Set angle around oX to 0. => A == 1, B == 0, C == 0, D == 1.
-
-			// And finding angle around Z-axis.
-			const auto tan_x = m[1].y;		// BDF+AE => E
-			const auto tan_y = -m[1].x;		// BDE-AF => F
-
-			rotation.z = std::atan2(tan_y, tan_x);
-		}
-	};
-
-	Extract_Rotation_Part();
-
-	// scale.x * scale.y * scale.z = -1
-	if (check_non_uniform)
+		rotation.x = std::atan2(tan_y, tan_x);
+		// Finding angle around Z-axis.
+		tan_x = m[0].x / C;	// E
+		tan_y = m[0].y / C;	// F
+		rotation.z = std::atan2(tan_y, tan_x);
+	}
+	else
 	{
-		auto CheckScaling = [&]()
-		{
-			auto result_transform = glm::mat4(1);
+		// Y-axis is fixed.
+		rotation.x = 0;// Set angle around oX to 0. => A == 1, B == 0, C == 0, D == 1.
 
-			ComposeTransformMatrix(result_transform, translation, rotation, scale);
+		// And finding angle around Z-axis.
+		const auto tan_x = m[1].y;		// BDF+AE => E
+		const auto tan_y = -m[1].x;		// BDE-AF => F
 
-			const float Decompose_Epsilon = 0.001f;
-
-			// compare the result transform matrix with original matrix t
-			const bool equal = MatrixEpsilonEqual(t, result_transform, Decompose_Epsilon);
-
-			return equal;
-		};
-
-		/* Check (-1, -1, -1) scaling */
-		bool pass = CheckScaling();
-		if (pass)
-		{
-			return;
-		}
-
-		/* Else, check (-1, 1, 1) scaling */
-
-		scale.y = -scale.y; // restore y-axis and z-axis signs from(-1, -1, -1)
-		scale.z = -scale.z;
-		m[1] *= -1.0f;
-		m[2] *= -1.0f;
-		Extract_Rotation_Part(); // reverse deduce rotation again.
-
-		pass = CheckScaling();
-		if (pass)
-		{
-			return;
-		}
-
-		/* Else, check (1, -1, 1) scaling */
-
-		scale.x = -scale.x; // restore x-axis and y-axis signs from (-1, 1, 1)
-		scale.y = -scale.y;
-		m[0] *= -1.0f;
-		m[1] *= -1.0f;
-		Extract_Rotation_Part(); // reverse deduce rotation again.
-
-		pass = CheckScaling();
-		if (pass)
-		{
-			return;
-		}
-
-		/* Else, is (1, 1, -1) scaling */
-
-		scale.y = -scale.y; // restore x-axis and y-axis signs from (1, -1, 1)
-		scale.z = -scale.z;
-		m[1] *= -1.0f;
-		m[2] *= -1.0f;
-		Extract_Rotation_Part(); // reverse deduce rotation again.
+		rotation.z = std::atan2(tan_y, tan_x);
 	}
 }
 
