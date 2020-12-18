@@ -14,6 +14,8 @@ public:
 
 	static glm::mat4 ScaleMatrix(const float scale);
 
+	static bool MatrixEpsilonEqual(const glm::mat4& left, const glm::mat4& right, const float epsilon);
+
 	/**
 	* @brief Construct a local coordinate-system of which the z-axis is the input parameter "z_axis"
 	* @returns glm::mat3 A Matrix of which the column[0] is x-axis, the column[1] is y-axis and the column[2] is z-axis
@@ -49,7 +51,7 @@ public:
 	/**
 	*@brief  Decompose a transform matrix to three elements: translation, rotation(Euler Angles), scale.
 		Limits:
-			1. All original scale components' sign should be consistent (all positve or negative).
+			1. All original scale components' sign should be consistent (all positive or negative).
 			2. To extract original scale which contain a zero component is impossible.
 			3. The original rotation should be X->Y->Z order extrinsic (Matrix multiplication order is Z * Y *X)
 	* @parameter t Input transform matrix
@@ -66,6 +68,10 @@ public:
 	* @brief Decompose a transform matrix to three elements: translation, rotation(Quaternion), scale.
 	*/
 	static void TransformMatrixDecompose(const glm::mat4& t, glm::vec3& translation, glm::quat& q, glm::vec3& scale);
+
+	static void ComposeTransformMatrix(glm::mat4& t, const glm::vec3& translation, const glm::quat& rotation, const glm::vec3& scale);
+
+	static void ComposeTransformMatrix(glm::mat4& t, const glm::vec3& translation, const glm::vec3& euler_xyz, const glm::vec3& scale);
 
 	/**
 	* @brief Extract the translation from a transform matrix
