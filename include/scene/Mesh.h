@@ -33,7 +33,7 @@ public:
 
 	inline const std::vector<Texture>& GetTextures() const;
 
-	void Draw(Shader& shader);
+	void Draw(Shader& shader) const ;
 
 	void SetupMesh();
 

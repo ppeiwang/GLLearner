@@ -18,6 +18,8 @@ public:
 
 	void SetPosition(const glm::vec3& pos);
 
+	void SetRotation(const glm::quat& q);
+
 	void SetUpDirection(const glm::vec3& up);
 
 	void SetPerspective(float fov, float asp, float zNear, float zFar);
@@ -36,6 +38,7 @@ public:
 
 	const glm::vec3& GetTarget() const noexcept;
 
+	// world position
 	const glm::vec3& GetPosition() const noexcept;
 
 	const glm::quat& GetRotation() const noexcept;

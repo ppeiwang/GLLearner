@@ -80,7 +80,7 @@ std::string operator + (const std::string & str, const std::string_view & strv)
 	return s;
 }
 
-void Mesh::Draw(Shader& shader)
+void Mesh::Draw(Shader& shader) const
 {
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;

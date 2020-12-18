@@ -79,6 +79,20 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 		gZoom = 45.0f;
 }
 
+glm::quat QuaternionRotate(const float angleRad, const glm::vec3& v)
+{
+	const float Sin = sin(angleRad * 0.5f);
+
+	return glm::quat(cos(angleRad * 0.5f), v.x * Sin, v.y * Sin, v.z * Sin);
+}
+
+glm::vec3 PrivotRotate(const glm::vec3& point, const glm::vec3& pivot, const float angleRad, const glm::vec3& axis)
+{
+	const auto q = QuaternionRotate(angleRad, axis);
+
+	return { pivot + q * (point - pivot) };
+}
+
 int main()
 {
 	// always initialize the logger at the first time
@@ -88,7 +102,6 @@ int main()
 		GUIManager::GetInstance().AddGuiPanel(ptr_gui_logger);
 	}
 
-	Assimp::Importer importer;
 
 	glfwInit();
 
@@ -304,7 +317,9 @@ int main()
 
 	std::shared_ptr<Camera> ptr_camera = global_scene_instance.GetCamera();
 	Camera& camera_instance_ = *ptr_camera;
-	
+
+	camera_instance_.SetPosition({ 0.0f, 0.0f, 50.0f });
+
 	std::shared_ptr<CameraPanel> ptr_camera_debug_panel = std::make_shared<CameraPanel>();
 	ptr_camera_debug_panel->SetCamera(ptr_camera);
 	GUIManager::GetInstance().AddGuiPanel(ptr_camera_debug_panel);
@@ -321,12 +336,22 @@ int main()
 	std::vector<glm::vec3> vec_rand_pos;
 	for (int i = 0; i < 1024; i++)
 	{
-		vec_rand_pos.push_back(fRand(0, 10));
+		vec_rand_pos.push_back(fRand(0, 2));
 	}
 
 	while (!glfwWindowShouldClose(window))
 	{	
 		++frame;
+
+		const auto& p1 = ptr_camera->GetPosition();
+
+		const auto p0 = glm::vec3{ 0.0f, 0.0f, 0.0f };
+
+		auto p2 = PrivotRotate(p1, p0, 0.05f, { 0, 1.0f, 0 });
+
+		ptr_camera->SetPosition(p2);
+
+		ptr_camera->SetTarget(p0);
 
 		processInput(window);
 
@@ -364,7 +389,6 @@ int main()
 			{
 				shader_cube.Use();
 
-
 				// set lights
 
 				shader_cube.SetFloatVec("viewPos", camera_instance_.GetPosition());
@@ -375,7 +399,7 @@ int main()
 				direction_light.SetDiffuse({ 0.4f, 0.4f, 0.4f });
 				direction_light.SetSpecular({ 0.6f, 0.6f, 0.6f });
 				direction_light.SetDirection(lightDirection);
-				// shader_cube.AddDirectionLight(direction_light);
+				shader_cube.AddDirectionLight(direction_light);
 
 				for (int i = 0; i < point_lights_num; i++)
 				{
@@ -389,7 +413,7 @@ int main()
 					point_light.SetConstant(1.0f);
 					point_light.SetLinear(0.09f);
 					point_light.SetQuadratic(0.032f);
-					shader_cube.AddPointLight(point_light);
+					//shader_cube.AddPointLight(point_light);
 				}
 
 				Light::SpotLight spot_light;
@@ -448,7 +472,7 @@ int main()
 					auto point_light_cube_model_matrix = glm::scale(glm::identity<glm::mat4>(), glm::vec3(0.2f));
 					point_light_cube_model_matrix = glm::translate(point_light_cube_model_matrix, point_light_pos);
 					shader_light.SetMatrix("model", point_light_cube_model_matrix);
-					glDrawArrays(GL_TRIANGLES, 0, 36);
+					//glDrawArrays(GL_TRIANGLES, 0, 36);
 				}
 			}
 		
