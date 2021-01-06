@@ -21,6 +21,7 @@
 #include "assimp/Importer.hpp"
 
 //#debug begin
+#include "math/PMath.h"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtc/constants.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -79,20 +80,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 		gZoom = 45.0f;
 }
 
-glm::quat QuaternionRotate(const float angleRad, const glm::vec3& v)
-{
-	const float Sin = sin(angleRad * 0.5f);
-
-	return glm::quat(cos(angleRad * 0.5f), v.x * Sin, v.y * Sin, v.z * Sin);
-}
-
-glm::vec3 PrivotRotate(const glm::vec3& point, const glm::vec3& pivot, const float angleRad, const glm::vec3& axis)
-{
-	const auto q = QuaternionRotate(angleRad, axis);
-
-	return { pivot + q * (point - pivot) };
-}
-
 int main()
 {
 	// always initialize the logger at the first time
@@ -102,13 +89,11 @@ int main()
 		GUIManager::GetInstance().AddGuiPanel(ptr_gui_logger);
 	}
 
-
 	glfwInit();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
 
 	GLFWwindow* window = glfwCreateWindow(800, 600, "GLFW-Window", NULL, NULL);
 	if (window == NULL)
@@ -131,6 +116,7 @@ int main()
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		Logger::Error("Failed to initialize GLAD");
+		glfwTerminate();
 		return -1;
 	}
 
@@ -342,16 +328,6 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{	
 		++frame;
-
-		const auto& p1 = ptr_camera->GetPosition();
-
-		const auto p0 = glm::vec3{ 0.0f, 0.0f, 0.0f };
-
-		auto p2 = PrivotRotate(p1, p0, 0.05f, { 0, 1.0f, 0 });
-
-		ptr_camera->SetPosition(p2);
-
-		ptr_camera->SetTarget(p0);
 
 		processInput(window);
 

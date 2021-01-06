@@ -81,7 +81,6 @@ vec3 ApplyDirectionLight(DirectionLight direction_light, vec3 normal, vec3 viewD
 }
 
 
-
 void main()
 {
 	if(light_type == 1) // direction light

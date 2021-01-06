@@ -5,19 +5,18 @@
 #include "shader/Shader.h"
 #include <string>
 
-//namespace assimp
-//{
-	struct aiScene;
-	struct aiNode;
-	struct aiMesh;
-//}
+struct aiScene;
+struct aiNode;
+struct aiMesh;
+struct aiMaterial;
+enum aiTextureType;
 
 RENDER_CORE_BEGIN
 
 class Model
 {
 public:
-	Model(const std::string& str_model_path)
+	explicit Model(const std::string& str_model_path)
 	{
 		const bool load_success = LoadModel(str_model_path);
 		if (!load_success)
@@ -41,13 +40,12 @@ private:
 
 	Mesh ProcessMesh(const aiMesh* ptr_mesh, const aiScene* ptr_scene);
 
-#if 0
-	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type,
-		const std::string& typeName);
-#endif
+	std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, const ETextureType textue_type);
 		
 private:
 	std::vector<Mesh> vec_meshes_;
+
+	std::string current_model_file_path_;
 
 };
 

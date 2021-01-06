@@ -2,11 +2,18 @@
 #include "glad/glad.h"
 #include "stb/stb_image.h"
 #include "logger/Logger.h"
+#include "utilities/Exception.h"
 
 RENDER_CORE_BEGIN
 
 uint32_t TextureLoader::LoadTexture(char const* path)
 {
+	if (!path)
+	{
+		assert(false && "the pointer of path is null");
+		throw std::runtime_error("LoadTexture from a null path");
+	}
+
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 
@@ -14,7 +21,7 @@ uint32_t TextureLoader::LoadTexture(char const* path)
 	unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
 	if (data)
 	{
-		GLenum format;
+		GLenum format = GL_RGBA;
 		if (nrComponents == 1)
 			format = GL_RED;
 		else if (nrComponents == 3)
@@ -40,13 +47,12 @@ uint32_t TextureLoader::LoadTexture(char const* path)
 	}
 
 	return textureID;
-
 }
 
-Texture TextureLoader::LoadTexture(char const* path, ETextureTye texture_type)
+Texture TextureLoader::LoadTexture(char const* path, ETextureType texture_type)
 {
 	const uint32_t textureID = LoadTexture(path);
-	return { textureID, texture_type };
+	return { textureID, texture_type, path};
 }
 
 RENDER_CORE_END

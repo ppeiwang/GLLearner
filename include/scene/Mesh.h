@@ -16,7 +16,12 @@ public:
 
 	template<typename T1, typename T2, typename T3>
 	Mesh(T1&& vertices, T2&& indices, T3&& textures) :
-		m_vertices_{std::forward<T1>(vertices)}, m_indices_{std::forward<T2>(indices)}, m_textures_{std::forward<T3>(textures)}
+		m_vertices_{std::forward<T1>(vertices)},
+		m_indices_{std::forward<T2>(indices)},
+		m_textures_{std::forward<T3>(textures)},
+		m_vertex_array_object_ {-1},
+		m_vertex_buffer_object_ {-1},
+		m_element_buffer_object_ {-1}
 	{
 
 	}

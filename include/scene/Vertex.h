@@ -11,6 +11,8 @@ struct Vertex
 	glm::vec3 position_ {0.0f, 0.0f, 0.0f};
 	glm::vec3 normal_ { 0.0f, 0.0f, 0.0f };
 	glm::vec2 texture_coords_ { 0.0f, 0.0f};
+	glm::vec3 tangent_{ 0.0f, 0.0f, 0.0f };
+	glm::vec3 bitangent_{ 0.0f, 0.0f, 0.0f };
 };
 
 RENDER_CORE_END
