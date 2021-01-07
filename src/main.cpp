@@ -273,8 +273,7 @@ int main()
 	ShaderLoader shader_loader;
 
 	Shader shader_cube = shader_loader.Load( R"(assets/shader/vs_texture.glsl)", R"(assets/shader/fs_light_map.glsl)" );
-	Shader shader_light = shader_loader.Load(R"(assets/shader/vs_raw.glsl)", R"(assets/shader/raw.fs)");
-	//ShaderLoader shader_interpolate(R"(shader/vs.glsl)", R"(shader/fs_texture.glsl)");
+	Shader shader_light = shader_loader.Load(R"(assets/shader/vs_raw.glsl)", R"(assets/shader/fs_raw.glsl)");
 
 	shader_cube.Use();
 	const auto texture_diffuse_id =  TextureLoader::LoadTexture(texture_diffuse_path.c_str());
@@ -401,7 +400,7 @@ int main()
 				spot_light.SetCutOff(glm::cos(glm::radians(12.5f)));
 				spot_light.SetOuterCutOff(glm::cos(glm::radians(16.f)));
 
-				//shader_cube.AddSpotLight(spot_light);
+				shader_cube.AddSpotLight(spot_light);
 
 				const auto& viewMatrix = camera_instance_.GetViewMatrix();
 				const auto& projMatrix = camera_instance_.GetProjectMatrix();

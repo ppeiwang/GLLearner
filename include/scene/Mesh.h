@@ -19,9 +19,9 @@ public:
 		m_vertices_{std::forward<T1>(vertices)},
 		m_indices_{std::forward<T2>(indices)},
 		m_textures_{std::forward<T3>(textures)},
-		m_vertex_array_object_ {-1},
-		m_vertex_buffer_object_ {-1},
-		m_element_buffer_object_ {-1}
+		m_vertex_array_object_ {0},
+		m_vertex_buffer_object_ {0},
+		m_element_buffer_object_ {0}
 	{
 
 	}
