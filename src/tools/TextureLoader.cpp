@@ -2,10 +2,20 @@
 #include "glad/glad.h"
 #include "stb/stb_image.h"
 #include "logger/Logger.h"
+#include "utilities/Exception.h"
 
+RENDER_CORE_BEGIN
 
-uint32_t TextureLoader::LoadTexture(char const* path)
+std::unordered_map<std::string, uint32_t> TextureLoader::gLoadedTextureMap; //<path, ID>
+
+uint32_t TextureLoader::LoadTextureImp(char const* path)
 {
+	if (!path)
+	{
+		assert(false && "the pointer of path is null");
+		throw std::runtime_error("LoadTexture from a null path");
+	}
+
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 
@@ -13,7 +23,7 @@ uint32_t TextureLoader::LoadTexture(char const* path)
 	unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
 	if (data)
 	{
-		GLenum format;
+		GLenum format = GL_RGBA;
 		if (nrComponents == 1)
 			format = GL_RED;
 		else if (nrComponents == 3)
@@ -39,5 +49,27 @@ uint32_t TextureLoader::LoadTexture(char const* path)
 	}
 
 	return textureID;
-
 }
+
+Texture TextureLoader::LoadTexture(char const* path, ETextureType texture_type)
+{
+	if (auto itr = gLoadedTextureMap.find(path); itr != gLoadedTextureMap.end()) {
+		const auto textureID = itr->second;
+		return { textureID, texture_type, path };
+	}
+	else {
+		try
+		{
+			const uint32_t textureID = LoadTextureImp(path);
+			gLoadedTextureMap.emplace(std::string(path), textureID);
+			return { textureID, texture_type, path };
+		}
+		catch (const std::runtime_error& e)
+		{
+			Logger::Error(std::string("Failed to load texture: ") + e.what());
+			return {};
+		}
+	}
+}
+
+RENDER_CORE_END

@@ -1,7 +1,10 @@
 #pragma once
+#include "RenderCoreDefine.h"
 #include "gui/Gui.h"
 #include "camera/Camera.h"
 #include <memory>
+
+RENDER_CORE_BEGIN
 
 class CameraPanel final : public Gui 
 {
@@ -23,3 +26,5 @@ private:
 	std::weak_ptr<Camera> m_weak_ptr_camera_;
 
 };
+
+RENDER_CORE_END

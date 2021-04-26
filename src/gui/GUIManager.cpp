@@ -3,6 +3,8 @@
 #include "imgui/include/imgui_impl_glfw.h"
 #include "imgui/include/imgui_impl_opengl3.h"
 
+RENDER_CORE_BEGIN
+
 void GUIManager::Init(GLFWwindow* window)
 {
 	const char* glsl_version = "#version 130";
@@ -82,5 +84,4 @@ void GUIManager::Draw()
 	}
 }
 
-
-
+RENDER_CORE_END

@@ -1,9 +1,12 @@
 #pragma once
+#include "RenderCoreDefine.h"
 #include "gui/gui.h"
 #include <list>
 #include <map>
 #include <string>
 #include <array>
+
+RENDER_CORE_BEGIN
 
 // Set the logger buffer max size (lines)
 const size_t k_gui_logger_buffer_max_size = 1500;
@@ -184,3 +187,5 @@ private:
 
 	bool m_update_scrolling_bar_;
 };
+
+RENDER_CORE_END

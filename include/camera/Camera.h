@@ -1,6 +1,9 @@
 #pragma once
+#include "RenderCoreDefine.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
+
+RENDER_CORE_BEGIN
 
 class Camera
 {
@@ -15,6 +18,8 @@ public:
 
 	void SetPosition(const glm::vec3& pos);
 
+	void SetRotation(const glm::quat& q);
+
 	void SetUpDirection(const glm::vec3& up);
 
 	void SetPerspective(float fov, float asp, float zNear, float zFar);
@@ -27,12 +32,17 @@ public:
 
 	void Rotate(const float angleRad, const glm::vec3& axis);
 
-	float GetNear() const;
+	float GetNear() const noexcept { return m_zNear_; }
 
-	float GetFar() const;
+	float GetFar() const noexcept { return m_zFar_; }
+
+	float GetFov() const noexcept { return m_fov_; }
+
+	float GetAsp() const noexcept { return m_asp_; }
 
 	const glm::vec3& GetTarget() const noexcept;
 
+	// world position
 	const glm::vec3& GetPosition() const noexcept;
 
 	const glm::quat& GetRotation() const noexcept;
@@ -101,3 +111,5 @@ private:
 	glm::mat4 m_projection_matrix_;
 
 };
+
+RENDER_CORE_END

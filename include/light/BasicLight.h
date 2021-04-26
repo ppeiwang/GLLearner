@@ -1,5 +1,8 @@
 #pragma once
+#include "RenderCoreDefine.h"
 #include "glm/glm.hpp"
+
+RENDER_CORE_BEGIN
 
 namespace Light
 {
@@ -114,3 +117,5 @@ namespace Light
 		float m_out_cut_off_;
 	};
 }
+
+RENDER_CORE_END

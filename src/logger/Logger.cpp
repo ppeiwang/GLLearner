@@ -4,6 +4,8 @@
 #include <sstream>
 #include <iomanip>
 
+RENDER_CORE_BEGIN
+
 void Logger::Info(const std::string& s)
 {
 	std::cout << s << std::endl;
@@ -53,3 +55,5 @@ std::string Logger::ToString(const glm::quat& q)
 	ss << "{w:" << q.w <<  q.x << ", x:" << q.x << ", y:" << q.y << ", z:" << q.z << " }" ;
 	return ss.str();
 }
+
+RENDER_CORE_END

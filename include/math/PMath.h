@@ -1,15 +1,32 @@
 #pragma once
+#include "RenderCoreDefine.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
+#include <random>
+
+RENDER_CORE_BEGIN
 
 const float kEpsilon = 0.00001f;
 
 class PMath
 {
 public:
+	template<uint32_t N = 3>
+	static std::array<float,N> RandV(float min, float max) {
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> dis(min, max);
+		std::array<float N> v;
+		for (size_t i = 0; i < N; i++)
+			v[i] = dis(gen);
+		return v;
+	}
+
 	static glm::mat4 TranslationMatrix(const glm::vec3& translation);
 
 	static glm::mat4 ScaleMatrix(const float scale);
+
+	static bool MatrixEpsilonEqual(const glm::mat4& left, const glm::mat4& right, const float epsilon);
 
 	/**
 	* @brief Construct a local coordinate-system of which the z-axis is the input parameter "z_axis"
@@ -46,7 +63,7 @@ public:
 	/**
 	*@brief  Decompose a transform matrix to three elements: translation, rotation(Euler Angles), scale.
 		Limits:
-			1. All original scale components' sign should be consistent (all positve or negative).
+			1. All original scale components' sign should be consistent (all positive or negative).
 			2. To extract original scale which contain a zero component is impossible.
 			3. The original rotation should be X->Y->Z order extrinsic (Matrix multiplication order is Z * Y *X)
 	* @parameter t Input transform matrix
@@ -63,6 +80,10 @@ public:
 	* @brief Decompose a transform matrix to three elements: translation, rotation(Quaternion), scale.
 	*/
 	static void TransformMatrixDecompose(const glm::mat4& t, glm::vec3& translation, glm::quat& q, glm::vec3& scale);
+
+	static void ComposeTransformMatrix(glm::mat4& t, const glm::vec3& translation, const glm::quat& rotation, const glm::vec3& scale);
+
+	static void ComposeTransformMatrix(glm::mat4& t, const glm::vec3& translation, const glm::vec3& euler_xyz, const glm::vec3& scale);
 
 	/**
 	* @brief Extract the translation from a transform matrix
@@ -96,3 +117,4 @@ public:
 
 };
 
+RENDER_CORE_END

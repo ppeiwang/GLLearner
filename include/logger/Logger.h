@@ -1,10 +1,13 @@
 #pragma once
-#include <string>
+#include "RenderCoreDefine.h"
 #include "utilities/Singleton.h"
 #include "gui/GuiLogger.h"
 #include "glm/glm.hpp"
 #include "glm/gtx/quaternion.hpp"
 #include <memory>
+#include <string>
+
+RENDER_CORE_BEGIN
 
 class Logger : public Singleton<Logger>
 {
@@ -27,4 +30,4 @@ public:
 	static std::string ToString(const glm::quat& q);
 };
 
-
+RENDER_CORE_END

@@ -20,6 +20,8 @@ namespace
 	}
 }
 
+RENDER_CORE_BEGIN
+
 typedef unsigned long long ClockStamp;
 unsigned long long Clock::mFrame = 0;
 unsigned long long Clock::mMs = 0;
@@ -68,3 +70,5 @@ long long Clock::GetSysTimeMs()
 	auto value = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
 	return value.count();
 }
+
+RENDER_CORE_END

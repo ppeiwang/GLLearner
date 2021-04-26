@@ -2,6 +2,8 @@
 #include "imgui/include/imgui.h"
 #include <string>
 
+RENDER_CORE_BEGIN
+
 void CameraPanel::Draw()
 {
 	std::shared_ptr<Camera> ptr_camera = m_weak_ptr_camera_.lock();
@@ -108,3 +110,5 @@ void CameraPanel::Draw()
 		ImGui::End();	
 	}
 }
+
+RENDER_CORE_END

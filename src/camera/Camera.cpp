@@ -2,6 +2,7 @@
 #include "math/PMath.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "logger/Logger.h"
+#include "glm/gtc/epsilon.hpp"
 
 using glm::vec3;
 using glm::quat;
@@ -15,6 +16,8 @@ namespace
 	const vec3 k_default_camera_up_dir = { 0.f, 1.f, 0.f };
 	const vec3 k_default_camera_raw_view_dir = { 0.f, 0.f, -1.f };
 }
+
+RENDER_CORE_BEGIN
 
 Camera::Camera()
 	: m_dirty_(true)
@@ -79,11 +82,19 @@ void Camera::Reset()
 
 void Camera::SetTarget(const glm::vec3& target)
 {
-	if (m_target_ != target)
+	auto concurrent = glm::epsilonNotEqual(target, m_position_, glm::epsilon<float>());
+	if (concurrent.x && concurrent.y && concurrent.z)
 	{
-		m_target_ = target;
-		m_dirty_ = true;
+		Logger::Warning("Camera Can not set the target and target at the same point");
+		return;
 	}
+
+	const auto view_direction = glm::normalize(target - m_position_);
+
+	const auto quat_to_new_view = PMath::VectorRotate(m_raw_view_direction_, view_direction);
+	
+	SetRotation(quat_to_new_view);
+
 }
 
 void Camera::SetPosition(const glm::vec3& pos)
@@ -97,6 +108,12 @@ void Camera::SetPosition(const glm::vec3& pos)
 		m_position_ = pos;
 		m_dirty_ = true;
 	}
+}
+
+void Camera::SetRotation(const glm::quat& q)
+{
+	m_dirty_ = true;
+	m_rotation_ = q;
 }
 
 void Camera::SetUpDirection(const glm::vec3& up)
@@ -154,22 +171,9 @@ void Camera::Rotate(const float angleRad, const glm::vec3& axis)
 	const glm::quat& tmp = rot_q * current_rot_q;
 	const glm::quat rot_result = glm::normalize(rot_q*current_rot_q);
 
-	if (rot_result != m_rotation_)
-	{
-		last_camera_rotation = m_rotation_;
-		m_rotation_ = rot_result;
-		m_dirty_ = true;
-	}
-}
-
-float Camera::GetNear() const
-{
-	return m_zNear_;
-}
-
-float Camera::GetFar() const
-{
-	return m_zFar_;
+	m_dirty_ = true;
+	last_camera_rotation = m_rotation_;
+	m_rotation_ = rot_result;
 }
 
 const glm::vec3& Camera::GetTarget() const noexcept
@@ -226,3 +230,5 @@ const glm::mat4& Camera::GetProjectMatrix() const noexcept
 {
 	return m_projection_matrix_;
 }
+
+RENDER_CORE_END

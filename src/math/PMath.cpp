@@ -7,6 +7,7 @@ using glm::mat3;
 using glm::vec3;
 using glm::vec4;
 
+RENDER_CORE_BEGIN
 
 glm::mat4 PMath::TranslationMatrix(const glm::vec3& translation)
 {
@@ -16,6 +17,28 @@ glm::mat4 PMath::TranslationMatrix(const glm::vec3& translation)
 glm::mat4 PMath::ScaleMatrix(const float scale)
 {
 	return glm::scale(glm::mat4{ 1 }, glm::vec3{scale});
+}
+
+bool PMath::MatrixEpsilonEqual(const glm::mat4& left, const glm::mat4& right, const float epsilon)
+{
+	bool equal = true;
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			equal = equal && glm::epsilonEqual(left[i][j], right[i][j], epsilon);
+			if (!equal)
+			{
+				break;
+			}
+		}
+
+		if (!equal)
+		{
+			break;
+		}
+	}
+	return equal;
 }
 
 glm::mat3 PMath::LookAtMatrix(const glm::vec3& z_axis, const glm::vec3& _up)
@@ -135,7 +158,6 @@ void PMath::TransformMatrixDecompose(const glm::mat4& t, glm::vec3& translation,
 		C = cos(angle_y), D = sin(angle_y);
 		E = cos(angle_z), F = sin(angle_z);
 	*/
-
 	rotation.y = std::asin(-m[0].z);// D. Angle around Y-axis.
 
 	const auto C = std::cos(rotation.y);
@@ -184,3 +206,37 @@ glm::vec3 PMath::ExtractScale(const glm::mat4& t)
 	return scale;
 }
 
+void PMath::ComposeTransformMatrix(glm::mat4& transform_matrix, const glm::vec3& translation, const glm::quat& rotation, const glm::vec3& scale)
+{
+	// rotation 
+	transform_matrix = mat4_cast(rotation);
+
+	// translation
+	transform_matrix[3][0] = translation[0];
+	transform_matrix[3][1] = translation[1];
+	transform_matrix[3][2] = translation[2];
+
+	// scale 
+	transform_matrix[0] *= scale.x;
+	transform_matrix[1] *= scale.y;
+	transform_matrix[2] *= scale.z;
+}
+
+
+void PMath::ComposeTransformMatrix(glm::mat4& transform_matrix, const glm::vec3& translation, const glm::vec3& euler_xyz, const glm::vec3& scale)
+{
+	// rotation 
+	transform_matrix = MatrixRotateFromExtrinsicXYZ(euler_xyz.x, euler_xyz.y, euler_xyz.z);
+
+	// translation
+	transform_matrix[3][0] = translation[0];
+	transform_matrix[3][1] = translation[1];
+	transform_matrix[3][2] = translation[2];
+
+	// scale 
+	transform_matrix[0] *= scale.x;
+	transform_matrix[1] *= scale.y;
+	transform_matrix[2] *= scale.z;
+}
+
+RENDER_CORE_END

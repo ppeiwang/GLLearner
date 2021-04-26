@@ -1,10 +1,13 @@
 #pragma once
+#include "RenderCoreDefine.h"
 #include "utilities/Singleton.h"
 #include "gui/Gui.h"
 #include <memory>
 #include <list>
-
+ 
 struct GLFWwindow;
+
+RENDER_CORE_BEGIN
 
 class GUIManager : public Singleton<GUIManager>
 {
@@ -28,3 +31,4 @@ private:
 	bool show_demo_window = true;
 };
 
+RENDER_CORE_END
