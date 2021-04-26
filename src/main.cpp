@@ -380,7 +380,9 @@ void processInput(GLFWwindow* window)
 	const float asp = camera_instance_.GetAsp();
 	const float near =  camera_instance_.GetNear();
 	const float far = camera_instance_.GetFar();
-	camera_instance_.SetPerspective(glm::radians(gZoom), asp, near, far);
+	//camera_instance_.SetPerspective(glm::radians(gZoom), asp, near, far);
+	camera_instance_.SetPerspective(glm::radians(gZoom), 800.f / 600.f, 0.1f, 1000.f);
+
 
 	camera_instance_.Update();
 }

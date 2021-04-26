@@ -130,8 +130,6 @@ vec3 AddSpotLight(SpotLight spot_light)
 
 void main()
 {
-FragColor = vec4(1.0, 1.0, 0.0, 1.0);
-return;
 	vec3 color = vec3(0.0, 0.0, 0.0);
 	for(int i = 0; i < direction_lights_count; i++)
 	{
