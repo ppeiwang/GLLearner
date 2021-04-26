@@ -1,4 +1,5 @@
 #include "scene/Texture.h"
+#include "utilities/Exception.h"
 
 RENDER_CORE_BEGIN
 
@@ -12,8 +13,7 @@ const std::string_view& Texture::TextureTypeToString(ETextureType e)
 			return global::k_shader_member_specular;
 		default:
 		{
-			assert(false && "Bad ETextureType");
-			return global::k_shader_empty;
+			throw std::runtime_error{ "Bad ETextureType" };
 		}
 	}
 }

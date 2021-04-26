@@ -32,9 +32,13 @@ public:
 
 	void Rotate(const float angleRad, const glm::vec3& axis);
 
-	float GetNear() const;
+	float GetNear() const noexcept { return m_zNear_; }
 
-	float GetFar() const;
+	float GetFar() const noexcept { return m_zFar_; }
+
+	float GetFov() const noexcept { return m_fov_; }
+
+	float GetAsp() const noexcept { return m_asp_; }
 
 	const glm::vec3& GetTarget() const noexcept;
 

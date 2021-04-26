@@ -90,19 +90,19 @@ Mesh Model::ProcessMesh(const aiMesh* ptr_mesh, const aiScene* ptr_scene)
 			vx.normal_ = { assimp_normal.x, assimp_normal.y, assimp_normal.z };
 		}
 
-		// only one texture attached to a mesh
 		if (ptr_mesh->mTextureCoords[0])
 		{
 			const auto& assimp_texture_coord = ptr_mesh->mTextureCoords[0];
 			vx.texture_coords_ = {assimp_texture_coord[i].x, assimp_texture_coord[i].y};
 		}
-
-		vx.tangent_ = { ptr_mesh->mTangents[i].x, ptr_mesh->mTangents[i].y, ptr_mesh->mTangents[i].z };
-		vx.bitangent_ = { ptr_mesh->mBitangents[i].x, ptr_mesh->mBitangents[i].y, ptr_mesh->mBitangents[i].z };
+		if (ptr_mesh->mTangents) {
+			vx.tangent_ = { ptr_mesh->mTangents[i].x, ptr_mesh->mTangents[i].y, ptr_mesh->mTangents[i].z };
+			vx.bitangent_ = { ptr_mesh->mBitangents[i].x, ptr_mesh->mBitangents[i].y, ptr_mesh->mBitangents[i].z };
+		}
 
 		vertices.push_back(std::move(vx));
 	}
-	// process indices
+	// process indices. Triangle is the default polygon type
 	for (unsigned int i = 0; i < ptr_mesh->mNumFaces; i++)
 	{
 		const aiFace& cref_face = ptr_mesh->mFaces[i];
@@ -113,17 +113,17 @@ Mesh Model::ProcessMesh(const aiMesh* ptr_mesh, const aiScene* ptr_scene)
 	// process material
 	if (ptr_mesh->mMaterialIndex >= 0)
 	{
-		aiMaterial* material = ptr_scene->mMaterials[ptr_mesh->mMaterialIndex];
-		std::vector<Texture> diffuse_textures = LoadMaterialTextures(material, aiTextureType_DIFFUSE, ETextureType::texture_diffuse);
+		const aiMaterial* material = ptr_scene->mMaterials[ptr_mesh->mMaterialIndex];
+		const std::vector<Texture> diffuse_textures = LoadMaterialTextures(material, aiTextureType_DIFFUSE, ETextureType::texture_diffuse);
 		textures.insert(textures.end(), diffuse_textures.begin(), diffuse_textures.end());
-		std::vector<Texture> specular_textures = LoadMaterialTextures(material, aiTextureType_SPECULAR, ETextureType::texture_specular);
-		textures.insert(textures.end(), diffuse_textures.begin(), diffuse_textures.end());
+		const std::vector<Texture> specular_textures = LoadMaterialTextures(material, aiTextureType_SPECULAR, ETextureType::texture_specular);
+		textures.insert(textures.end(), specular_textures.begin(), specular_textures.end());
 	}
 
 	return Mesh(std::move(vertices), std::move(indices), std::move(textures));
 }
 
-std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* ptr_material, aiTextureType type, const ETextureType texture_type)
+std::vector<Texture> Model::LoadMaterialTextures(const aiMaterial* ptr_material, aiTextureType type, const ETextureType texture_type)
 {
 	if (!ptr_material)
 	{

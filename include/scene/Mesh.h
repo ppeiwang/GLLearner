@@ -23,7 +23,7 @@ public:
 		m_vertex_buffer_object_ {0},
 		m_element_buffer_object_ {0}
 	{
-
+		SetupMesh();
 	}
 
 	inline std::vector<Vertex>& GetVertices();

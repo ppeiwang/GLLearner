@@ -7,6 +7,9 @@
 
 RENDER_CORE_BEGIN
 
+// #todo list:
+// 1. IO. in order to save & load a scene file
+
 class Scene
 {
 public:

@@ -40,7 +40,7 @@ private:
 
 	Mesh ProcessMesh(const aiMesh* ptr_mesh, const aiScene* ptr_scene);
 
-	std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, const ETextureType textue_type);
+	std::vector<Texture> LoadMaterialTextures(const aiMaterial* mat, aiTextureType type, const ETextureType textue_type);
 		
 private:
 	std::vector<Mesh> vec_meshes_;

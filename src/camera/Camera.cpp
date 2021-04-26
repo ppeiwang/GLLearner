@@ -176,16 +176,6 @@ void Camera::Rotate(const float angleRad, const glm::vec3& axis)
 	m_rotation_ = rot_result;
 }
 
-float Camera::GetNear() const
-{
-	return m_zNear_;
-}
-
-float Camera::GetFar() const
-{
-	return m_zFar_;
-}
-
 const glm::vec3& Camera::GetTarget() const noexcept
 {
 	return m_target_;

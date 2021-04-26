@@ -2,6 +2,7 @@
 #include "RenderCoreDefine.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
+#include <random>
 
 RENDER_CORE_BEGIN
 
@@ -10,6 +11,17 @@ const float kEpsilon = 0.00001f;
 class PMath
 {
 public:
+	template<uint32_t N = 3>
+	static std::array<float,N> RandV(float min, float max) {
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> dis(min, max);
+		std::array<float N> v;
+		for (size_t i = 0; i < N; i++)
+			v[i] = dis(gen);
+		return v;
+	}
+
 	static glm::mat4 TranslationMatrix(const glm::vec3& translation);
 
 	static glm::mat4 ScaleMatrix(const float scale);

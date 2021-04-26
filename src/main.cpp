@@ -17,8 +17,9 @@
 #include "gui/GUIManager.h"
 #include "gui/GuiPanel.h"
 #include "light/Light.h"
+#include "scene/Model.h"
 
-#include "assimp/Importer.hpp"
+//#include "assimp/Importer.hpp"
 
 //#debug begin
 #include "math/PMath.h"
@@ -29,6 +30,8 @@
 #include "glm/gtc/matrix_transform.hpp"
 //#debug end
 
+//#define RENDER_CORE_GUI_PANEL
+
 using namespace RenderCore;
 
 Scene global_scene_instance{"Simple Scene"};
@@ -37,6 +40,13 @@ void processInput(GLFWwindow* window);
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
+	std::shared_ptr<Camera> ptr_camera = global_scene_instance.GetCamera();
+	if (ptr_camera) {
+		const float fov = ptr_camera->GetFov();
+		const float near = ptr_camera->GetNear();
+		const float far = ptr_camera->GetFar();
+		ptr_camera->SetPerspective(fov, width / height, near, far);
+	}
 	glViewport(0, 0, width, height);
 }
 
@@ -86,16 +96,31 @@ int main()
 	{
 		auto ptr_gui_logger = std::make_shared<GuiLogger>();
 		Logger::GetInstance().SetGuiLogger(ptr_gui_logger);
+#ifdef RENDER_CORE_GUI_PANEL
 		GUIManager::GetInstance().AddGuiPanel(ptr_gui_logger);
+#endif
 	}
 
 	glfwInit();
 
+	/* 
+		Require a minimum OpenGL version by setting the GLFW_CONTEXT_VERSION_MAJOR and
+		GLFW_CONTEXT_VERSION_MINOR hints before creation.
+		If the required minimum version is not supported on the machine, context (and window) creation fails 
+	*/
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	GLFWwindow* window = glfwCreateWindow(800, 600, "GLFW-Window", NULL, NULL);
+	//GLFWwindow* window = glfwCreateWindow(800, 600, "GLFW-Window", glfwGetPrimaryMonitor(), NULL); // full screen
+
+	{
+		int left, top, right, bottom;
+		glfwGetWindowFrameSize(window, &left, &top, &right, &bottom);
+		int debug = 1;
+	}
+
 	if (window == NULL)
 	{
 		Logger::Error("Failed to create GLFW window");
@@ -120,7 +145,9 @@ int main()
 		return -1;
 	}
 
+#ifdef RENDER_CORE_GUI_PANEL
 	GUIManager::GetInstance().Init(window);
+#endif
 
 	const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
 	const GLubyte* version = glGetString(GL_VERSION); // version as a string
@@ -136,165 +163,17 @@ int main()
 	int nAttriLimit;
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nAttriLimit);
 
-	float vertices[] = {
-			// positions          // normals          // texture coords
-			-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-			 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-			 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-			 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-			-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+	glEnable(GL_DEPTH_TEST);
 
-			-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-			 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-			 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-			 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-			-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-			-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-
-			-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-			-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-			-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-			-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-			-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-			-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-			 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-			 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-			 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-			 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-			 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-			-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-			 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-			 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-			 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-			-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-			-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-			 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-			 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-			 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-			-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-			-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-	};
-	unsigned int indices[] = {
-		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
-	};
-
-	unsigned int VBO[2], VAO[2], EBO[2];
-
-	glGenVertexArrays(2, VAO);
-	glGenBuffers(2, VBO);
-	glGenBuffers(2, EBO);
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), then configure vertex attributes(s), and at last bind element buffer.
-	
-	glBindVertexArray(VAO[0]);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(float), indices, GL_STATIC_DRAW);
-
-	/************************************************************************
-	 glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void * pointer);
-
-	 @index Specifies the index of the generic vertex attribute to be modified.
-	 @size Specifies the number of components per generic vertex attribute. Must be 1, 2, 3, 4
-	 @type Specifies the data type of each component in the array
-	 @stride Specifies the byte offset between consecutive generic vertex attributes. 
-		If stride is 0, the generic vertex attributes are understood to be tightly packed in the array. The initial value is 0
-	 @ pointer Specifies a offset of the first component of the first generic vertex attribute in the array 
-		in the data store of the buffer currently bound to the GL_ARRAY_BUFFER target
-	*/
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
-	glEnableVertexAttribArray(1);
-	
-
-	glBindVertexArray(VAO[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[1]);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(float), indices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6*sizeof(float)));
-	glEnableVertexAttribArray(2);
-	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));
-	//glEnableVertexAttribArray(1);
-	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
-	//glEnableVertexAttribArray(2);
-
-	uint32_t light_VAO; // ligth cube
-	glGenVertexArrays(1, &light_VAO);
-	glBindVertexArray(light_VAO);
-	// we only need to bind to the VBO, the container's VBO's data already contains the data.
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-	// set the vertex attributes (only position data for our lamp)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex
-	// attribute's bound vertex buffer object so afterwards we can safely unbind
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but
-	// this rarely happens. Modifying other VAOs requires a call to glBindVertexArray anyways so we
-	// generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-
-
-	/*
-		Usually when you have multiple objects you want to draw, you first generate/configure all the VAOs (and thus the required VBO and attribute pointers)
-		and store those for later use. The moment we want to draw one of our objects, we take the corresponding VAO, bind it, 
-		then draw the object and unbind the VAO again.	
-	*/
-
-	glBindVertexArray(0);
+	stbi_set_flip_vertically_on_load(true);
 
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	//const std::string texture_file_path{"blue-ice-background.jpg"};
-	const std::string texture_fabric_path{"assets/texture/fabric.jpg"};
-	const std::string texture_wood_path{"assets/texture/wood.jpg"};
-	const std::string texture_cartoon_path{"assets/texture/cartoon.jpg"};
-	const std::string texture_diffuse_path{"assets/texture/container2.png"};
-	const std::string texture_specular_path{"assets/texture/container2_specular.png"};
-
 	ShaderLoader shader_loader;
+	Shader current_shader = shader_loader.Load( R"(assets/shader/vs_texture.glsl)", R"(assets/shader/fs_light_map.glsl)" );
 
-	Shader shader_cube = shader_loader.Load( R"(assets/shader/vs_texture.glsl)", R"(assets/shader/fs_light_map.glsl)" );
-	Shader shader_light = shader_loader.Load(R"(assets/shader/vs_raw.glsl)", R"(assets/shader/fs_raw.glsl)");
-
-	shader_cube.Use();
-	const auto texture_diffuse_id =  TextureLoader::LoadTexture(texture_diffuse_path.c_str());
-	const auto texture_sepcular_id =  TextureLoader::LoadTexture(texture_specular_path.c_str());
-	shader_cube.SetInt("material.diffuse", 0);
-	shader_cube.SetInt("material.specular", 1);
-
-	glm::vec4 color_a{ 1.0f, 1.0f, 0.0f, 1.0f };
-
-	glm::vec4 color_b{ 0.0f, 1.0f, 1.0f, 1.0f };
-
-	auto fRand = [](int min, int max)
-	{
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_int_distribution<> dis(min, max);
-		glm::vec3 v;
-		for (size_t i = 0; i < 3; i++)
-			v[i] = dis(gen);
-		return v;
-	};
+	Model back_pack_model{ "assets/model/backpack/backpack.obj" };
 
 	global_scene_instance.CreateCamera();
 
@@ -307,7 +186,10 @@ int main()
 
 	std::shared_ptr<CameraPanel> ptr_camera_debug_panel = std::make_shared<CameraPanel>();
 	ptr_camera_debug_panel->SetCamera(ptr_camera);
+
+#ifdef RENDER_CORE_GUI_PANEL
 	GUIManager::GetInstance().AddGuiPanel(ptr_camera_debug_panel);
+#endif
 
 	unsigned long long frame = 0;
 	unsigned long long ms = 0;
@@ -318,78 +200,36 @@ int main()
 
 	std::chrono::high_resolution_clock::time_point last = std::chrono::high_resolution_clock::now();
 
-	std::vector<glm::vec3> vec_rand_pos;
-	for (int i = 0; i < 1024; i++)
-	{
-		vec_rand_pos.push_back(fRand(0, 2));
-	}
 
 	while (!glfwWindowShouldClose(window))
 	{	
 		++frame;
 
 		processInput(window);
-
 		// rendering
 		{
-			//glClearColor(color_a.x, color_a.y, color_a.z, color_a.w);
 			glClearColor(0.15f, 0.15f, 0.18f, 1.0f);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			glEnable(GL_DEPTH_TEST);
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, texture_diffuse_id);
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, texture_sepcular_id);
-
-			const auto center_offset = glm::vec3{ 0, 0, 5.f };
-			auto model_matrix = glm::mat4{ 1 };
-			model_matrix = glm::translate(model_matrix, center_offset);
-
-			// update light
-			auto CalculateLightPos = [](const glm::vec3& center, const float radius, float rotation)
-			{
-				const float x = center.x + glm::cos(rotation) * radius;
-				const float y = center.y;
-				const float z = center.z + glm::sin(rotation) * radius;
-				return glm::vec3{x, y, z};
-			};
 
 			const glm::vec3 lightColor{ 1.f, 1.f, 1.f };
 			const glm::vec3 lightDirection{ 0.55f, 0.8f, 0.25f };
 			const int point_lights_num = 30;
 
 			{
-				shader_cube.Use();
+				current_shader.Use();
 
 				// set lights
 
-				shader_cube.SetFloatVec("viewPos", camera_instance_.GetPosition());
-				shader_cube.SetFloat("material.shininess", 32.0f);
+				current_shader.SetFloatVec("viewPos", camera_instance_.GetPosition());
+				current_shader.SetFloat("material.shininess", 32.0f);
 
 				Light::DirectionLight direction_light;
 				direction_light.SetAmbient({ 0.05f, 0.05f, 0.05f });
 				direction_light.SetDiffuse({ 0.4f, 0.4f, 0.4f });
 				direction_light.SetSpecular({ 0.6f, 0.6f, 0.6f });
 				direction_light.SetDirection(lightDirection);
-				shader_cube.AddDirectionLight(direction_light);
-
-				for (int i = 0; i < point_lights_num; i++)
-				{
-					Light::PointLight point_light;
-					const auto rotation = 2.0f * glm::pi<float>() * (i + 1.0f) / point_lights_num;
-					auto point_light_pos = CalculateLightPos(center_offset, 6.0f, rotation);
-					point_light.SetPosition(point_light_pos);
-					point_light.SetAmbient({ 0.05f, 0.05f, 0.05f });
-					point_light.SetDiffuse({ 0.8f, 0.8f, 0.8f });
-					point_light.SetSpecular({ 1.0f, 1.0f, 1.0f });
-					point_light.SetConstant(1.0f);
-					point_light.SetLinear(0.09f);
-					point_light.SetQuadratic(0.032f);
-					//shader_cube.AddPointLight(point_light);
-				}
+				current_shader.AddDirectionLight(direction_light);
 
 				Light::SpotLight spot_light;
 				spot_light.SetDirection(camera_instance_.GetForward());
@@ -400,61 +240,31 @@ int main()
 				spot_light.SetCutOff(glm::cos(glm::radians(12.5f)));
 				spot_light.SetOuterCutOff(glm::cos(glm::radians(16.f)));
 
-				shader_cube.AddSpotLight(spot_light);
+				current_shader.AddSpotLight(spot_light);
 
 				const auto& viewMatrix = camera_instance_.GetViewMatrix();
 				const auto& projMatrix = camera_instance_.GetProjectMatrix();
 
 				//shader_cube.SetMatrix("model", modelMatrix);
-				shader_cube.SetMatrix("view", viewMatrix);
-				shader_cube.SetMatrix("projection", projMatrix);
+
+				glm::mat4 model = glm::mat4(1.0f);
+				model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+				model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+				current_shader.SetMatrix("model", model);
+				current_shader.SetMatrix("view", viewMatrix);
+				current_shader.SetMatrix("projection", projMatrix);
 			
-				glBindVertexArray(VAO[1]);
-				const int cube_count = 18;
-				for (int cube_index = point_lights_num; cube_index < cube_count + point_lights_num; cube_index++)
-				{
-					auto pos = vec_rand_pos[cube_index];
-					float angle = 20.0f * cube_index;
-					model_matrix = glm::translate(glm::identity<glm::mat4>(), pos);
-
-					model_matrix = glm::rotate(model_matrix, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-
-					shader_cube.SetMatrix("model", model_matrix);
-					glDrawArrays(GL_TRIANGLES, 0, 36);
-				}
-
-				shader_cube.ResetLightCount();
-			}	
-
-			{
-				shader_light.Use();
-
-				glBindVertexArray(light_VAO);
-
-				const auto& viewMatrix = camera_instance_.GetViewMatrix();
-				const auto& projMatrix = camera_instance_.GetProjectMatrix();
-
-				glBindVertexArray(light_VAO);
-				shader_light.SetFloatVec("uFragColor", lightColor.x, lightColor.y, lightColor.z, 1.0f);
-				shader_light.SetMatrix("view", viewMatrix);
-				shader_light.SetMatrix("projection", projMatrix);
-
-				for (int i = 0; i < point_lights_num; i++)
-				{
-					const auto rotation = 2.0f * glm::pi<float>() * i / point_lights_num;
-					auto point_light_pos = CalculateLightPos(center_offset, 6.0f, rotation);
-
-					auto point_light_cube_model_matrix = glm::scale(glm::identity<glm::mat4>(), glm::vec3(0.2f));
-					point_light_cube_model_matrix = glm::translate(point_light_cube_model_matrix, point_light_pos);
-					shader_light.SetMatrix("model", point_light_cube_model_matrix);
-					//glDrawArrays(GL_TRIANGLES, 0, 36);
-				}
+				current_shader.ResetLightCount();
 			}
+
+			back_pack_model.Draw(current_shader);
 		
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}
 
+#ifdef RENDER_CORE_GUI_PANEL
 		GUIManager::GetInstance().Update();
+#endif
 
 		glfwPollEvents();
 
@@ -481,7 +291,9 @@ int main()
 
 	}
 
+#ifdef RENDER_CORE_GUI_PANEL
 	GUIManager::GetInstance().DeInit();
+#endif
 
 	glfwTerminate();
 
@@ -564,7 +376,12 @@ void processInput(GLFWwindow* window)
 	camera_instance_.Pitch(rotation_increment.x);
 	camera_instance_.Yaw(rotation_increment.y);
 	camera_instance_.Roll(rotation_increment.z);
-	camera_instance_.Update();
 
-	camera_instance_.SetPerspective(glm::radians(gZoom), 800.f / 600.f, 0.1f, 1000.f);
+	// #FIXME APS = 0  near = 0 far = 0, check them out!
+	const float asp = camera_instance_.GetAsp();
+	const float near =  camera_instance_.GetNear();
+	const float far = camera_instance_.GetFar();
+	camera_instance_.SetPerspective(glm::radians(gZoom), asp, near, far);
+
+	camera_instance_.Update();
 }

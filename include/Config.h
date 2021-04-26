@@ -15,10 +15,10 @@ namespace global
 	const unsigned int k_point_light_limit = 32;
 
 	// the max count of texture diffuse map a shader used
-	const unsigned int k_texture_diffuse_limit = 3;
+	const unsigned int k_texture_diffuse_limit = 1;
 
 	// the max count of texture specular map a shader used
-	const unsigned int k_texture_specular_limit = 2;
+	const unsigned int k_texture_specular_limit = 1;
 }
 
 RENDER_CORE_END

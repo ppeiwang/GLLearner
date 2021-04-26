@@ -6,7 +6,9 @@
 
 RENDER_CORE_BEGIN
 
-uint32_t TextureLoader::LoadTexture(char const* path)
+std::unordered_map<std::string, uint32_t> TextureLoader::gLoadedTextureMap; //<path, ID>
+
+uint32_t TextureLoader::LoadTextureImp(char const* path)
 {
 	if (!path)
 	{
@@ -51,8 +53,23 @@ uint32_t TextureLoader::LoadTexture(char const* path)
 
 Texture TextureLoader::LoadTexture(char const* path, ETextureType texture_type)
 {
-	const uint32_t textureID = LoadTexture(path);
-	return { textureID, texture_type, path};
+	if (auto itr = gLoadedTextureMap.find(path); itr != gLoadedTextureMap.end()) {
+		const auto textureID = itr->second;
+		return { textureID, texture_type, path };
+	}
+	else {
+		try
+		{
+			const uint32_t textureID = LoadTextureImp(path);
+			gLoadedTextureMap.emplace(std::string(path), textureID);
+			return { textureID, texture_type, path };
+		}
+		catch (const std::runtime_error& e)
+		{
+			Logger::Error(std::string("Failed to load texture: ") + e.what());
+			return {};
+		}
+	}
 }
 
 RENDER_CORE_END
