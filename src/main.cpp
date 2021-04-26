@@ -377,7 +377,6 @@ void processInput(GLFWwindow* window)
 	camera_instance_.Yaw(rotation_increment.y);
 	camera_instance_.Roll(rotation_increment.z);
 
-	// #FIXME APS = 0  near = 0 far = 0, check them out!
 	const float asp = camera_instance_.GetAsp();
 	const float near =  camera_instance_.GetNear();
 	const float far = camera_instance_.GetFar();
