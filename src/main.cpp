@@ -18,6 +18,7 @@
 #include "gui/GuiPanel.h"
 #include "light/Light.h"
 #include "scene/Model.h"
+#include <filesystem>
 
 //#include "assimp/Importer.hpp"
 
@@ -34,7 +35,7 @@
 
 using namespace RenderCore;
 
-Scene global_scene_instance{"Simple Scene"};
+Scene global_scene_instance{ "Simple Scene" };
 
 void processInput(GLFWwindow* window);
 
@@ -103,10 +104,10 @@ int main()
 
 	glfwInit();
 
-	/* 
+	/*
 		Require a minimum OpenGL version by setting the GLFW_CONTEXT_VERSION_MAJOR and
 		GLFW_CONTEXT_VERSION_MINOR hints before creation.
-		If the required minimum version is not supported on the machine, context (and window) creation fails 
+		If the required minimum version is not supported on the machine, context (and window) creation fails
 	*/
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
@@ -171,7 +172,15 @@ int main()
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	ShaderLoader shader_loader;
-	Shader current_shader = shader_loader.Load( R"(assets/shader/vs_texture.glsl)", R"(assets/shader/fs_light_map.glsl)" );
+	Shader current_shader = shader_loader.Load(R"(assets/shader/vs_texture.glsl)", R"(assets/shader/fs_light_map.glsl)");
+
+	{ // debug
+		std::filesystem::path model_path = "assets/model/backpack/backpack.obj";
+
+		const auto model_full_path = std::filesystem::absolute(model_path);
+
+		auto str_model_full_path = model_full_path.c_str();
+	}
 
 	Model back_pack_model{ "assets/model/backpack/backpack.obj" };
 
@@ -194,7 +203,7 @@ int main()
 	unsigned long long frame = 0;
 	unsigned long long ms = 0;
 
-	constexpr std::chrono::seconds time_seconds { 1 };
+	constexpr std::chrono::seconds time_seconds{ 1 };
 	constexpr std::chrono::nanoseconds time_per_frame_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(time_seconds) / 60;
 	constexpr std::chrono::milliseconds time_per_frame_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(time_per_frame_nanoseconds);
 
@@ -202,7 +211,7 @@ int main()
 
 
 	while (!glfwWindowShouldClose(window))
-	{	
+	{
 		++frame;
 
 		processInput(window);
@@ -234,8 +243,8 @@ int main()
 				Light::SpotLight spot_light;
 				spot_light.SetDirection(camera_instance_.GetForward());
 				spot_light.SetPosition(camera_instance_.GetPosition());
-				spot_light.SetAmbient(lightColor* glm::vec3{ 0.5f } *glm::vec3{ 0.2f });
-				spot_light.SetDiffuse(lightColor* glm::vec3{ 0.5f });
+				spot_light.SetAmbient(lightColor * glm::vec3{ 0.5f } *glm::vec3{ 0.2f });
+				spot_light.SetDiffuse(lightColor * glm::vec3{ 0.5f });
 				spot_light.SetSpecular({ 1.0f, 1.0f, 1.0f });
 				spot_light.SetCutOff(glm::cos(glm::radians(12.5f)));
 				spot_light.SetOuterCutOff(glm::cos(glm::radians(16.f)));
@@ -253,12 +262,12 @@ int main()
 				current_shader.SetMatrix("model", model);
 				current_shader.SetMatrix("view", viewMatrix);
 				current_shader.SetMatrix("projection", projMatrix);
-			
+
 				current_shader.ResetLightCount();
 			}
 
 			back_pack_model.Draw(current_shader);
-		
+
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}
 
@@ -298,7 +307,7 @@ int main()
 	glfwTerminate();
 
 	return 0;
-}
+		}
 
 void processInput(GLFWwindow* window)
 {
@@ -358,7 +367,7 @@ void processInput(GLFWwindow* window)
 		rotation_increment.y -= rotation_delta;
 	}
 
-	auto ptr_camera =  global_scene_instance.GetCamera();
+	auto ptr_camera = global_scene_instance.GetCamera();
 	auto& camera_instance_ = *ptr_camera;
 
 	const auto right_direction = camera_instance_.GetRight();
@@ -378,7 +387,7 @@ void processInput(GLFWwindow* window)
 	camera_instance_.Roll(rotation_increment.z);
 
 	const float asp = camera_instance_.GetAsp();
-	const float near =  camera_instance_.GetNear();
+	const float near = camera_instance_.GetNear();
 	const float far = camera_instance_.GetFar();
 	//camera_instance_.SetPerspective(glm::radians(gZoom), asp, near, far);
 	camera_instance_.SetPerspective(glm::radians(gZoom), 800.f / 600.f, 0.1f, 1000.f);
