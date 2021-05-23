@@ -19,6 +19,7 @@
 #include "light/Light.h"
 #include "scene/Model.h"
 #include <filesystem>
+#include "testCases/BlendingCase.h"
 
 //#include "assimp/Importer.hpp"
 
@@ -168,6 +169,14 @@ int main()
 
 	stbi_set_flip_vertically_on_load(true);
 
+	Test::TestCase* current_case = new Test::BlendingCase();
+
+	if (current_case)
+	{
+		current_case->Init();
+	}
+
+
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -220,6 +229,12 @@ int main()
 			glClearColor(0.15f, 0.15f, 0.18f, 1.0f);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+			if (current_case)
+			{
+				current_case->Update();
+			}
 
 			const glm::vec3 lightColor{ 1.f, 1.f, 1.f };
 			const glm::vec3 lightDirection{ 0.55f, 0.8f, 0.25f };
@@ -300,6 +315,11 @@ int main()
 
 	}
 
+	if (current_case)
+	{
+		current_case->DeInit();
+	}
+
 #ifdef RENDER_CORE_GUI_PANEL
 	GUIManager::GetInstance().DeInit();
 #endif
@@ -307,7 +327,7 @@ int main()
 	glfwTerminate();
 
 	return 0;
-		}
+}
 
 void processInput(GLFWwindow* window)
 {
