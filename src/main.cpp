@@ -173,26 +173,13 @@ int main()
 
 	if (current_case)
 	{
+		current_case->SetScene(&global_scene_instance);
 		current_case->Init();
 	}
 
 
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	ShaderLoader shader_loader;
-	Shader current_shader = shader_loader.Load(R"(assets/shader/vs_texture.glsl)", R"(assets/shader/fs_light_map.glsl)");
-
-	{ // debug
-		std::filesystem::path model_path = "assets/model/backpack/backpack.obj";
-
-		const auto model_full_path = std::filesystem::absolute(model_path);
-
-		auto str_model_full_path = model_full_path.c_str();
-	}
-
-	Model back_pack_model{ "assets/model/backpack/backpack.obj" };
-
 	global_scene_instance.CreateCamera();
 
 	global_scene_instance.SetLightPosition({ 1.2f, 1.0f, 2.0f });
@@ -235,53 +222,6 @@ int main()
 			{
 				current_case->Update();
 			}
-
-			const glm::vec3 lightColor{ 1.f, 1.f, 1.f };
-			const glm::vec3 lightDirection{ 0.55f, 0.8f, 0.25f };
-			const int point_lights_num = 30;
-
-			{
-				current_shader.Use();
-
-				// set lights
-
-				current_shader.SetFloatVec("viewPos", camera_instance_.GetPosition());
-				current_shader.SetFloat("material.shininess", 32.0f);
-
-				Light::DirectionLight direction_light;
-				direction_light.SetAmbient({ 0.05f, 0.05f, 0.05f });
-				direction_light.SetDiffuse({ 0.4f, 0.4f, 0.4f });
-				direction_light.SetSpecular({ 0.6f, 0.6f, 0.6f });
-				direction_light.SetDirection(lightDirection);
-				current_shader.AddDirectionLight(direction_light);
-
-				Light::SpotLight spot_light;
-				spot_light.SetDirection(camera_instance_.GetForward());
-				spot_light.SetPosition(camera_instance_.GetPosition());
-				spot_light.SetAmbient(lightColor * glm::vec3{ 0.5f } *glm::vec3{ 0.2f });
-				spot_light.SetDiffuse(lightColor * glm::vec3{ 0.5f });
-				spot_light.SetSpecular({ 1.0f, 1.0f, 1.0f });
-				spot_light.SetCutOff(glm::cos(glm::radians(12.5f)));
-				spot_light.SetOuterCutOff(glm::cos(glm::radians(16.f)));
-
-				current_shader.AddSpotLight(spot_light);
-
-				const auto& viewMatrix = camera_instance_.GetViewMatrix();
-				const auto& projMatrix = camera_instance_.GetProjectMatrix();
-
-				//shader_cube.SetMatrix("model", modelMatrix);
-
-				glm::mat4 model = glm::mat4(1.0f);
-				model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-				model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-				current_shader.SetMatrix("model", model);
-				current_shader.SetMatrix("view", viewMatrix);
-				current_shader.SetMatrix("projection", projMatrix);
-
-				current_shader.ResetLightCount();
-			}
-
-			back_pack_model.Draw(current_shader);
 
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}

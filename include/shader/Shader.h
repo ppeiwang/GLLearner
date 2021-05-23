@@ -8,6 +8,8 @@ RENDER_CORE_BEGIN
 class Shader
 {
 public:
+	Shader() = default;
+
 	explicit Shader(unsigned int ID) : ID_{ ID }
 	{
 
@@ -58,7 +60,7 @@ public:
 	void ResetLightCount();
 
 public:
-	const unsigned int ID_;
+	unsigned int ID_;
 
 	unsigned int m_direction_light_count{ 0 };
 

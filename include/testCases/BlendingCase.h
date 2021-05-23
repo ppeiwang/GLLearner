@@ -2,6 +2,7 @@
 #include "testCases/TestCase.h"
 #include "glm/glm.hpp"
 #include <vector>
+#include "shader/Shader.h"
 
 namespace Test
 {
@@ -40,6 +41,8 @@ namespace Test
 		unsigned int m_floor_texture_;
 
 		unsigned int m_transparent_texture_;
+
+		RenderCore::Shader m_shader_;
 
 	};
 }

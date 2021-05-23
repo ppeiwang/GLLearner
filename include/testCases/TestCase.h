@@ -1,5 +1,10 @@
 #pragma once
 
+namespace RenderCore 
+{
+	class Scene;
+}
+
 namespace Test
 {
 	class TestCase
@@ -23,6 +28,14 @@ namespace Test
 		{
 
 		}
+
+		void SetScene(RenderCore::Scene* ptr)
+		{
+			m_scene_instance_ = ptr;
+		}
+
+	protected:
+		RenderCore::Scene* m_scene_instance_{ nullptr };
 
 	};
 }
