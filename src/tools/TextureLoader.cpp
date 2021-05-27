@@ -72,4 +72,6 @@ Texture TextureLoader::LoadTexture(char const* path, ETextureType texture_type)
 	}
 }
 
+bool TextureLoader::gFlipVertically = false;
+
 RENDER_CORE_END

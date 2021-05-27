@@ -40,7 +40,9 @@ namespace Test
 
 		unsigned int m_floor_texture_;
 
-		unsigned int m_transparent_texture_;
+		unsigned int m_transparent_grass_;
+
+		unsigned int m_transparent_window_;
 
 		RenderCore::Shader m_shader_;
 

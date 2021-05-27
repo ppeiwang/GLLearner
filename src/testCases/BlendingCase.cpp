@@ -13,9 +13,10 @@ namespace Test
 	{
 		m_shader_.Use();
 
-	std::shared_ptr<Camera> ptr_camera = m_scene_instance_->GetCamera();
-	
-	Camera& camera_instance_ = *ptr_camera;
+		std::shared_ptr<Camera> ptr_camera = m_scene_instance_->GetCamera();
+
+		Camera& camera_instance_ = *ptr_camera;
+
 		m_shader_.SetMatrix("projection", camera_instance_.GetProjectMatrix());
 		m_shader_.SetMatrix("view", camera_instance_.GetViewMatrix());
 		// cubes
@@ -36,13 +37,21 @@ namespace Test
 		model = glm::mat4(1.0f);
 		m_shader_.SetMatrix("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		// vegetation
-		glBindVertexArray(m_transparent_VAO_);
-		glBindTexture(GL_TEXTURE_2D, m_transparent_texture_);
+
+
+		std::map<float, glm::vec3> sorted;
 		for (unsigned int i = 0; i < m_vegetation_position_.size(); i++)
 		{
+			float distance = glm::length(camera_instance_.GetPosition() - m_vegetation_position_[i]);
+			sorted[distance] = m_vegetation_position_[i];
+		}
+
+		glBindVertexArray(m_transparent_VAO_);
+		glBindTexture(GL_TEXTURE_2D, m_transparent_window_);
+		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+		{
 			model = glm::mat4(1.0f);
-			model = glm::translate(model, m_vegetation_position_[i]);
+			model = glm::translate(model, it->second);
 			m_shader_.SetMatrix("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
@@ -158,8 +167,8 @@ namespace Test
 		// -------------
 		m_cube_texture_ = TextureLoader::LoadTexture("assets/texture/dalishi.jpg", ETextureType::none).id_;
 		m_floor_texture_ = TextureLoader::LoadTexture("assets/texture/jinshu.jpg", ETextureType::none).id_;
-		m_transparent_texture_ = TextureLoader::LoadTexture("assets/texture/grass.png", ETextureType::none).id_;
-
+		m_transparent_grass_ = TextureLoader::LoadTexture("assets/texture/grass.png", ETextureType::none).id_;
+		m_transparent_window_ = TextureLoader::LoadTexture("assets/texture/blending_transparent_window.png", ETextureType::none).id_;
 
 		ShaderLoader shader_loader;
 
@@ -167,6 +176,10 @@ namespace Test
 		m_shader_.Use();
 		m_shader_.SetInt("texture1", 0);
 
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		// glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+		glBlendEquation(GL_FUNC_ADD);
 	}
 
 	void BlendingCase::DeInit()
