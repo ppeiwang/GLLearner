@@ -19,7 +19,7 @@ namespace Test
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-		const float* cubeVertices = basic_gemotry::cubeVertices;
+		const auto& cubeVertices = basic_gemotry::cubeVertices;
 
 		// cube VAO
 		glGenVertexArrays(1, &m_cube_VAO_);
@@ -33,7 +33,7 @@ namespace Test
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 		glBindVertexArray(0);
 
-		const float* planeVertices = basic_gemotry::planeVertices;
+		const auto& planeVertices = basic_gemotry::planeVertices;
 		// plane VAO
 		glGenVertexArrays(1, &m_plane_VAO_);
 		glGenBuffers(1, &m_plane_VBO_);
@@ -73,6 +73,7 @@ namespace Test
 		m_outline_shader_.SetMatrix("projection", camera_instance_.GetProjectMatrix());
 		m_outline_shader_.SetMatrix("view", camera_instance_.GetViewMatrix());
 
+		m_shader_.Use();
 		m_shader_.SetMatrix("projection", camera_instance_.GetProjectMatrix());
 		m_shader_.SetMatrix("view", camera_instance_.GetViewMatrix());
 
@@ -110,7 +111,7 @@ namespace Test
 		glStencilMask(0x00);
 		glDisable(GL_DEPTH_TEST);
 		m_outline_shader_.Use();
-		float scale = 1.1;
+		float scale = 1.05;
 		// cubes
 		glBindVertexArray(m_cube_VAO_);
 		glBindTexture(GL_TEXTURE_2D, m_cube_texture_);
@@ -127,6 +128,7 @@ namespace Test
 		glBindVertexArray(0);
 		glStencilMask(0xFF);
 		glStencilFunc(GL_ALWAYS, 0, 0xFF);
+		glEnable(GL_DEPTH_TEST);
 	}
 
 	void StencilTestingCase::DeInit()
