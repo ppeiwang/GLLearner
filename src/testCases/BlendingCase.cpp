@@ -56,6 +56,18 @@ namespace Test
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 
+		auto m_s = glm::mat4{ 1.0f };
+		m_s[0][0] = 2.0f;
+
+		auto m_t = glm::translate(glm::mat4{ 1.0f }, glm::vec3{ 0.f, 0.f, 10.f });
+
+		auto m_r = glm::mat4{ glm::quat{glm::acos(glm::radians<float>(0.5f * 45.f)), glm::vec3{0.f, 0.f, 1.0f}*glm::asin(glm::radians<float>(0.5 * 45.f))} };
+
+		model = m_s * m_t * m_r;
+		m_shader_.SetMatrix("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+
 	}
 
 	void BlendingCase::Init()
