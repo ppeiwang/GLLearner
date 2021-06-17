@@ -20,6 +20,7 @@
 #include "scene/Model.h"
 #include <filesystem>
 #include "testCases/BlendingCase.h"
+#include "testCases/OffScreenRenderCase.h"
 
 //#include "assimp/Importer.hpp"
 
@@ -169,7 +170,7 @@ int main()
 
 	//stbi_set_flip_vertically_on_load(true);
 
-	Test::TestCase* current_case = new Test::BlendingCase();
+	Test::TestCase* current_case = new Test::OffScreenRenderCase();
 
 	if (current_case)
 	{
@@ -187,7 +188,7 @@ int main()
 	std::shared_ptr<Camera> ptr_camera = global_scene_instance.GetCamera();
 	Camera& camera_instance_ = *ptr_camera;
 
-	camera_instance_.SetPosition({ 0.0f, 0.0f, 50.0f });
+	camera_instance_.SetPosition({ 0.0f, 0.0f, 10.0f });
 
 	std::shared_ptr<CameraPanel> ptr_camera_debug_panel = std::make_shared<CameraPanel>();
 	ptr_camera_debug_panel->SetCamera(ptr_camera);
