@@ -20,6 +20,7 @@
 #include "scene/Model.h"
 #include <filesystem>
 #include "testCases/BlendingCase.h"
+#include "testCases/StencilTestingCase.h"
 
 //#include "assimp/Importer.hpp"
 
@@ -165,18 +166,18 @@ int main()
 	int nAttriLimit;
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nAttriLimit);
 
-	glEnable(GL_DEPTH_TEST);
+	// glEnable(GL_DEPTH_TEST);
 
 	//stbi_set_flip_vertically_on_load(true);
 
-	Test::TestCase* current_case = new Test::BlendingCase();
+	//Test::TestCase* current_case = new Test::BlendingCase();
+	Test::TestCase* current_case = new Test::StencilTestingCase();
 
 	if (current_case)
 	{
 		current_case->SetScene(&global_scene_instance);
 		current_case->Init();
 	}
-
 
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -213,9 +214,9 @@ int main()
 		processInput(window);
 		// rendering
 		{
-			glClearColor(0.15f, 0.15f, 0.18f, 1.0f);
+			//glClearColor(0.15f, 0.15f, 0.18f, 1.0f);
 
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 			if (current_case)
