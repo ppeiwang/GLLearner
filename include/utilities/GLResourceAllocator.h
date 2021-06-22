@@ -6,8 +6,7 @@ RENDER_CORE_BEGIN
 
 namespace GLResource
 {
-	unsigned int CreateTexture();
+unsigned int CreateTexture();
 }
-
 
 RENDER_CORE_END

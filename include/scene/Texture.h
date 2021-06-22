@@ -24,5 +24,4 @@ struct Texture
 	static const std::string_view& TextureTypeToString(ETextureType e);
 };
 
-
 RENDER_CORE_END
