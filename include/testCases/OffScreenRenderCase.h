@@ -22,15 +22,32 @@ public:
 	void DeInit() override;
 
 private:
+	void DrawMesh();
+
+private:
 	unsigned int m_cube_VAO_{ 0 };
 
 	unsigned int m_cube_VBO_{ 0 };
 
 	unsigned int m_cube_texture_{ 0 };
 
+	unsigned int m_plane_VAO_{ 0 };
+
+	unsigned int m_plane_VBO_{ 0 };
+
+	unsigned int m_plane_texture_{ 0 };
+
+	unsigned int m_quad_VAO_{ 0 };
+
+	unsigned int m_quad_VBO_{ 0 };
+
+	unsigned int m_quad_texture_{ 0 };
+
 	unsigned int m_framebuffer_{ 0 };
 
 	unsigned int m_texture_buffer_{ 0 };
+
+	unsigned int m_frame_buffer_{ 0 };
 
 	RenderCore::Shader m_shader_{};
 };
