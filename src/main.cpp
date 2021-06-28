@@ -22,6 +22,8 @@
 #include <filesystem>
 #include "testCases/BlendingCase.h"
 #include "testCases/OffScreenRenderCase.h"
+#include "testCases/StencilTestingCase.h"
+
 
 //#include "assimp/Importer.hpp"
 
@@ -166,7 +168,7 @@ int main()
 	int nAttriLimit;
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nAttriLimit);
 
-	glEnable(GL_DEPTH_TEST);
+	// glEnable(GL_DEPTH_TEST);
 
 	//stbi_set_flip_vertically_on_load(true);
 
@@ -212,9 +214,9 @@ int main()
 		processInput(window);
 		// rendering
 		{
-			glClearColor(0.15f, 0.15f, 0.18f, 1.0f);
+			//glClearColor(0.15f, 0.15f, 0.18f, 1.0f);
 
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			if (current_case)
 			{
