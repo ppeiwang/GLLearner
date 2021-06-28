@@ -4,6 +4,7 @@
 #include <thread>
 #include <sstream>
 #include <iomanip>
+#include "Config.h"
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
@@ -20,7 +21,9 @@
 #include "scene/Model.h"
 #include <filesystem>
 #include "testCases/BlendingCase.h"
+#include "testCases/OffScreenRenderCase.h"
 #include "testCases/StencilTestingCase.h"
+
 
 //#include "assimp/Importer.hpp"
 
@@ -44,7 +47,8 @@ void processInput(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	std::shared_ptr<Camera> ptr_camera = global_scene_instance.GetCamera();
-	if (ptr_camera) {
+	if (ptr_camera)
+	{
 		const float fov = ptr_camera->GetFov();
 		const float near = ptr_camera->GetNear();
 		const float far = ptr_camera->GetFar();
@@ -62,7 +66,6 @@ struct stTextureInfo
 	stTextureInfo() = default;
 };
 
-
 void SetWindowTitle(GLFWwindow* window, const std::string& title, float frame_rate)
 {
 	if (window)
@@ -79,7 +82,6 @@ void SetWindowTitle(GLFWwindow* window, const std::string& title, float frame_ra
 
 void mouse_callback(GLFWwindow* /*window*/, double /*xpos*/, double /*ypos*/)
 {
-
 }
 
 static float gZoom = 45.0f;
@@ -115,8 +117,8 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "GLFW-Window", NULL, NULL);
-	//GLFWwindow* window = glfwCreateWindow(800, 600, "GLFW-Window", glfwGetPrimaryMonitor(), NULL); // full screen
+	GLFWwindow* window = glfwCreateWindow(global::k_window_width, global::k_window_height, "GLFW-Window", NULL, NULL);
+	//GLFWwindow* window = glfwCreateWindow(global::k_window_width, global::k_window_height, "GLFW-Window", glfwGetPrimaryMonitor(), NULL); // full screen
 
 	{
 		int left, top, right, bottom;
@@ -153,13 +155,13 @@ int main()
 #endif
 
 	const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
-	const GLubyte* version = glGetString(GL_VERSION); // version as a string
+	const GLubyte* version = glGetString(GL_VERSION);	// version as a string
 
 	const std::string title = std::string((char*)renderer) + ". OpenGL Version: " + std::string((char*)version);
 
 	glfwSetWindowTitle(window, title.c_str());
 
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, global::k_window_width, global::k_window_height);
 
 	//  compile vertex shader and fragment shader
 
@@ -170,8 +172,7 @@ int main()
 
 	//stbi_set_flip_vertically_on_load(true);
 
-	//Test::TestCase* current_case = new Test::BlendingCase();
-	Test::TestCase* current_case = new Test::StencilTestingCase();
+	Test::TestCase* current_case = new Test::OffScreenRenderCase();
 
 	if (current_case)
 	{
@@ -188,7 +189,7 @@ int main()
 	std::shared_ptr<Camera> ptr_camera = global_scene_instance.GetCamera();
 	Camera& camera_instance_ = *ptr_camera;
 
-	camera_instance_.SetPosition({ 0.0f, 0.0f, 50.0f });
+	camera_instance_.SetPosition({ 0.0f, 0.0f, 10.0f });
 
 	std::shared_ptr<CameraPanel> ptr_camera_debug_panel = std::make_shared<CameraPanel>();
 	ptr_camera_debug_panel->SetCamera(ptr_camera);
@@ -206,7 +207,6 @@ int main()
 
 	std::chrono::high_resolution_clock::time_point last = std::chrono::high_resolution_clock::now();
 
-
 	while (!glfwWindowShouldClose(window))
 	{
 		++frame;
@@ -217,7 +217,6 @@ int main()
 			//glClearColor(0.15f, 0.15f, 0.18f, 1.0f);
 
 			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 			if (current_case)
 			{
@@ -253,7 +252,6 @@ int main()
 
 			ms += time_per_frame_milliseconds.count();
 		}
-
 	}
 
 	if (current_case)
@@ -304,6 +302,16 @@ void processInput(GLFWwindow* window)
 		translation_increment.z -= translation_delta;
 	}
 
+	// vertical
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+	{
+		translation_increment.y = translation_delta;
+	}
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+	{
+		translation_increment.y -= translation_delta;
+	}
+
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
 		// x+
@@ -336,10 +344,10 @@ void processInput(GLFWwindow* window)
 	const auto forward_direction = camera_instance_.GetForward();
 
 	const auto camera_current_position = camera_instance_.GetPosition();
-	const auto camera_new_position = (camera_current_position)+
-		right_direction * translation_increment.x +
-		up_direction * translation_increment.y +
-		forward_direction * translation_increment.z;
+	const auto camera_new_position = (camera_current_position) +
+									 right_direction * translation_increment.x +
+									 up_direction * translation_increment.y +
+									 forward_direction * translation_increment.z;
 
 	camera_instance_.SetPosition(camera_new_position);
 
@@ -351,8 +359,7 @@ void processInput(GLFWwindow* window)
 	const float near = camera_instance_.GetNear();
 	const float far = camera_instance_.GetFar();
 	//camera_instance_.SetPerspective(glm::radians(gZoom), asp, near, far);
-	camera_instance_.SetPerspective(glm::radians(gZoom), 800.f / 600.f, 0.1f, 1000.f);
-
+	camera_instance_.SetPerspective(glm::radians(gZoom), (float)global::k_window_width / (float)global::k_window_height, 0.1f, 1000.f);
 
 	camera_instance_.Update();
 }

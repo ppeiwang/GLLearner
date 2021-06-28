@@ -13,16 +13,15 @@ enum class ETextureType
 	texture_specular
 };
 
-struct Texture 
+struct Texture
 {
-	unsigned int id_ {0};
+	unsigned int id_{ 0 };
 
-	ETextureType type_ {ETextureType::none};
+	ETextureType type_{ ETextureType::none };
 
 	std::string path_;
 
 	static const std::string_view& TextureTypeToString(ETextureType e);
 };
-
 
 RENDER_CORE_END

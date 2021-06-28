@@ -4,7 +4,7 @@
 
 RENDER_CORE_BEGIN
 
-template<typename T>
+template <typename T>
 class Singleton
 {
 protected:
@@ -53,10 +53,10 @@ private:
 	static Helper m_helper_;
 };
 
-template<typename T>
+template <typename T>
 T* Singleton<T>::m_instance_ = nullptr;
 
-template<typename T>
+template <typename T>
 typename Singleton<T>::Helper Singleton<T>::m_helper_;
 
 RENDER_CORE_END
