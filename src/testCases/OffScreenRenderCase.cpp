@@ -12,16 +12,55 @@ namespace Test
 {
 void OffScreenRenderCase::Update()
 {
-	m_shader_.Use();
-
 	std::shared_ptr<Camera> ptr_camera = m_scene_instance_->GetCamera();
 
 	Camera& camera_instance_ = *ptr_camera;
+
+	// first render pass: mirror texture.
+	// bind to framebuffer and draw to color texture as we normally
+	// would, but with the view camera reversed.
+	// bind to framebuffer and draw scene as we normally would to color texture
+	// ------------------------------------------------------------------------
+	glBindFramebuffer(GL_FRAMEBUFFER, m_frame_buffer_);
+	glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
+
+	// make sure we clear the framebuffer's content
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	camera_instance_.Rotate(glm::pi<float>(), glm::vec3{ 0.0f, 1.0f, 0.0f });
+	camera_instance_.Update();
+
+	m_shader_.Use();
 
 	m_shader_.SetMatrix("projection", camera_instance_.GetProjectMatrix());
 	m_shader_.SetMatrix("view", camera_instance_.GetViewMatrix());
 
 	DrawMesh();
+
+	// render pass II:
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	camera_instance_.Rotate(glm::pi<float>(), glm::vec3{ 0.0f, 1.0f, 0.0f }); // reset camera's direction
+	camera_instance_.Update();
+
+	m_shader_.SetMatrix("projection", camera_instance_.GetProjectMatrix());
+	m_shader_.SetMatrix("view", camera_instance_.GetViewMatrix());
+
+	DrawMesh();
+
+	// now draw the mirror quad with screen texture
+	// --------------------------------------------
+	glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
+
+	m_screen_shader_.Use();
+	glBindVertexArray(m_quad_VAO_);
+	glBindTexture(GL_TEXTURE_2D, m_texture_color_buffer_); // use the color attachment texture as the texture of the quad plane
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void OffScreenRenderCase::DrawMesh()
@@ -162,19 +201,21 @@ void OffScreenRenderCase::Init()
 	m_shader_.Use();
 	m_shader_.SetInt("texture1", 0);
 
+	m_screen_shader_ = shader_loader.Load(R"(assets/shader/vs_screen.glsl)", R"(assets/shader/fs_blending.glsl)");
+	m_screen_shader_.Use();
+	m_screen_shader_.SetInt("texture1", 0);
+
 	// bind the framebuffer to a texture buffer
 	{
-		unsigned int framebuffer;
-		glGenFramebuffers(1, &framebuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		glGenFramebuffers(1, &m_frame_buffer_);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_frame_buffer_);
 		// create a color attachment texture
-		unsigned int textureColorbuffer;
-		glGenTextures(1, &textureColorbuffer);
-		glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+		glGenTextures(1, &m_texture_color_buffer_);
+		glBindTexture(GL_TEXTURE_2D, m_texture_color_buffer_);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, global::k_window_width, global::k_window_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture_color_buffer_, 0);
 		// create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
 		unsigned int rbo;
 		glGenRenderbuffers(1, &rbo);

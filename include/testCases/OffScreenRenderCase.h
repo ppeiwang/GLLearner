@@ -43,12 +43,12 @@ private:
 
 	unsigned int m_quad_texture_{ 0 };
 
-	unsigned int m_framebuffer_{ 0 };
-
-	unsigned int m_texture_buffer_{ 0 };
-
 	unsigned int m_frame_buffer_{ 0 };
 
+	unsigned int m_texture_color_buffer_{ 0 };
+
 	RenderCore::Shader m_shader_{};
+
+	RenderCore::Shader m_screen_shader_{};
 };
 }
